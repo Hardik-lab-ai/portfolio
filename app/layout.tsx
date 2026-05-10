@@ -27,7 +27,6 @@ export const metadata: Metadata = {
     "Solar EPC",
     "Construction Engineering",
     "Jersey City",
-    "Inland Supreme Constructions",
   ],
 };
 

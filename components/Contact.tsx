@@ -11,14 +11,6 @@ const CONTACT_METHODS = [
     accent: true,
   },
   {
-    label: "PHONE",
-    value: "(201) 657-9308",
-    sub: "Available for calls",
-    cta: "Call now →",
-    href: "tel:+12016579308",
-    accent: false,
-  },
-  {
     label: "LOCATION",
     value: "Jersey City, NJ",
     sub: "New York Metro Area · Remote Ready",

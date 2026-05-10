@@ -124,7 +124,7 @@ export default function Projects() {
             fontWeight: 700, color: "var(--text-1)", letterSpacing: "-0.02em",
             lineHeight: 1.1, marginBottom: 16,
           }}>
-            Projects I Delivered
+            Projects
           </h2>
           <p style={{ color: "var(--text-3)", fontSize: 14, maxWidth: 560, lineHeight: 1.7 }}>
             A selection of solar EPC, landfill, canopy, rooftop, BESS, and microgrid projects managed

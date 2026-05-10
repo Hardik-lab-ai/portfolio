@@ -10,13 +10,6 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-              <div style={{
-                width: 32, height: 32, borderRadius: 6,
-                background: "var(--accent)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-              }}>
-                <span style={{ color: "#FFF", fontWeight: 700, fontSize: 12, fontFamily: "var(--font-heading)" }}>HN</span>
-              </div>
               <span style={{ color: "#FFFFFF", fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 15, letterSpacing: "0.06em" }}>
                 HARDIK NAKRANI
               </span>
@@ -34,7 +27,6 @@ export default function Footer() {
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {[
                 { label: "Jersey City, NJ" },
-                { label: "(201) 657-9308" },
                 { label: "Hardiknakrani3695@gmail.com" },
               ].map(item => (
                 <span key={item.label} style={{ color: "var(--footer-muted)", fontSize: 13 }}>{item.label}</span>
@@ -58,7 +50,7 @@ export default function Footer() {
         {/* Divider + copyright */}
         <div style={{ borderTop: "1px solid var(--footer-border)", paddingTop: 24, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
           <span style={{ color: "rgba(255,255,255,0.22)", fontSize: 11, letterSpacing: "0.06em" }}>
-            © {new Date().getFullYear()} Hardik Nakrani · Inland Supreme Constructions
+            © {new Date().getFullYear()} Hardik Nakrani
           </span>
           <span style={{ color: "rgba(255,255,255,0.22)", fontSize: 11, letterSpacing: "0.04em" }}>
             Built with precision

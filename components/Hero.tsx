@@ -143,7 +143,6 @@ export default function Hero() {
         }}>
           {[
             { label: "Location", value: "Jersey City, NJ" },
-            { label: "Phone",    value: "(201) 657-9308"   },
             { label: "Email",    value: "Hardiknakrani3695@gmail.com" },
           ].map(({ label, value }) => (
             <div key={label} style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -159,7 +158,7 @@ export default function Hero() {
           display: "flex", gap: 12, flexWrap: "wrap",
           animation: "fadeUp 0.6s ease-out 0.4s forwards", opacity: 0,
         }}>
-          <a href="#experience" className="btn-primary">View My Work →</a>
+          <a href="#projects" className="btn-primary">View My Work →</a>
           <a href="#contact" className="btn-secondary">Get In Touch</a>
         </div>
 

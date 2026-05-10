@@ -7,7 +7,6 @@ const STATS = [
   { value: 500, suffix: "K+",          label: "Cost Savings Achieved",     accent: true,  desc: "Value engineering & procurement",     prefix: "$" },
   { value: 5,   suffix: "+ Yrs",       label: "Industry Experience",       accent: false, desc: "USA, Canada & India markets",         prefix: "" },
   { value: 4,   suffix: ".0",          label: "Master's Degree GPA",       accent: true,  desc: "Stevens Institute of Technology",     prefix: "" },
-  { value: 0,   suffix: " incidents",  label: "Safety Record",             accent: false, desc: "OSHA 30 certified — zero incidents",  prefix: "" },
 ];
 
 function CountUp({ target, duration = 1800, prefix = "", suffix = "" }: {

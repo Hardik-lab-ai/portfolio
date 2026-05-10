@@ -77,7 +77,7 @@ export default function Experience() {
             fontFamily: "var(--font-heading)", fontSize: "clamp(1.8rem, 3.5vw, 2.6rem)",
             fontWeight: 700, color: "var(--text-1)", letterSpacing: "-0.02em", marginBottom: 24,
           }}>
-            Building Excellence One Project at a Time
+            Professional Experience
           </h2>
           <div className="ruler-divider" style={{ maxWidth: 360, margin: "0 auto" }} />
         </div>

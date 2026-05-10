@@ -49,9 +49,6 @@ function CategoryCard({ cat, index }: { cat: Category; index: number }) {
       style={{ borderRadius: 10, padding: "28px 26px", borderTop: cat.accent ? "3px solid var(--accent)" : "3px solid var(--border-strong)" }}
     >
       <div style={{ marginBottom: 20 }}>
-        <div style={{ color: "var(--text-3)", fontSize: 9, fontWeight: 700, letterSpacing: "0.16em", marginBottom: 6 }}>
-          EXPERTISE
-        </div>
         <div style={{ color: "var(--text-1)", fontSize: 16, fontWeight: 700, fontFamily: "var(--font-heading)" }}>
           {cat.label}
         </div>

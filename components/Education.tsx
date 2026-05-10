@@ -115,18 +115,6 @@ function EduCard({ edu, index }: { edu: Edu; index: number }) {
           </div>
         </div>
 
-        {/* Badge */}
-        <div style={{ marginBottom: 14 }}>
-          <span style={{
-            background: edu.accent ? "var(--accent-light)" : "var(--chip-bg)",
-            border: `1px solid ${edu.accent ? "rgba(232,96,10,0.20)" : "var(--chip-border)"}`,
-            color: edu.accent ? "var(--accent)" : "var(--text-3)",
-            fontSize: 9, fontWeight: 800, padding: "3px 10px", borderRadius: 4, letterSpacing: "0.10em",
-          }}>
-            {edu.badge}
-          </span>
-        </div>
-
         <div style={{ height: 1, background: "var(--border)", marginBottom: 14 }} />
 
         {/* Courses */}
