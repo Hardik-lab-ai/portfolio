@@ -1,47 +1,69 @@
 export default function Footer() {
   return (
     <footer style={{
-      background: "var(--bg-section-a)",
-      borderTop: "1px solid var(--footer-border)",
-      padding: "40px 24px",
-      textAlign: "center",
+      background: "var(--footer-bg)",
+      padding: "48px 32px 36px",
     }}>
-      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 12, marginBottom: 20 }}>
-        <div style={{ height: 1, flex: 1, maxWidth: 200, background: "linear-gradient(90deg, transparent, var(--footer-border))" }} />
-        <span style={{ fontSize: 20 }}>🏗️</span>
-        <div style={{ height: 1, flex: 1, maxWidth: 200, background: "linear-gradient(90deg, var(--footer-border), transparent)" }} />
-      </div>
+      <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 32, marginBottom: 40 }}>
 
-      <div style={{ fontFamily: "var(--font-heading)", fontSize: 18, fontWeight: 700, color: "var(--text-1)", marginBottom: 8, letterSpacing: "-0.01em" }}>
-        HARDIK NAKRANI
-      </div>
-      <div style={{ color: "var(--text-3)", fontSize: 13, marginBottom: 24 }}>
-        Senior Project Manager · Solar EPC · Construction Engineering
-      </div>
+          {/* Brand */}
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+              <div style={{
+                width: 32, height: 32, borderRadius: 6,
+                background: "var(--accent)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+                <span style={{ color: "#FFF", fontWeight: 700, fontSize: 12, fontFamily: "var(--font-heading)" }}>HN</span>
+              </div>
+              <span style={{ color: "#FFFFFF", fontFamily: "var(--font-heading)", fontWeight: 700, fontSize: 15, letterSpacing: "0.06em" }}>
+                HARDIK NAKRANI
+              </span>
+            </div>
+            <div style={{ color: "var(--footer-muted)", fontSize: 13, lineHeight: 1.6, maxWidth: 280 }}>
+              Senior Project Manager · Solar EPC · Construction Engineering
+            </div>
+          </div>
 
-      <div style={{ display: "flex", justifyContent: "center", gap: 24, marginBottom: 28, flexWrap: "wrap" }}>
-        {[
-          { label: "Jersey City, NJ",               icon: "📍" },
-          { label: "(201) 657-9308",                icon: "📞" },
-          { label: "Hardiknakrani3695@gmail.com",   icon: "✉️" },
-        ].map(item => (
-          <span key={item.label} style={{ color: "var(--text-2)", fontSize: 13, display: "flex", alignItems: "center", gap: 5 }}>
-            <span>{item.icon}</span> {item.label}
+          {/* Contact */}
+          <div>
+            <div style={{ color: "rgba(255,255,255,0.30)", fontSize: 9, fontWeight: 700, letterSpacing: "0.18em", marginBottom: 14 }}>
+              CONTACT
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {[
+                { label: "Jersey City, NJ" },
+                { label: "(201) 657-9308" },
+                { label: "Hardiknakrani3695@gmail.com" },
+              ].map(item => (
+                <span key={item.label} style={{ color: "var(--footer-muted)", fontSize: 13 }}>{item.label}</span>
+              ))}
+            </div>
+          </div>
+
+          {/* Credentials */}
+          <div>
+            <div style={{ color: "rgba(255,255,255,0.30)", fontSize: 9, fontWeight: 700, letterSpacing: "0.18em", marginBottom: 14 }}>
+              CREDENTIALS
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {["OSHA 10 & 30", "CMIT", "Procore Certified", "SolarEdge Certified"].map(cert => (
+                <span key={cert} style={{ color: "var(--footer-muted)", fontSize: 13 }}>{cert}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Divider + copyright */}
+        <div style={{ borderTop: "1px solid var(--footer-border)", paddingTop: 24, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+          <span style={{ color: "rgba(255,255,255,0.22)", fontSize: 11, letterSpacing: "0.06em" }}>
+            © {new Date().getFullYear()} Hardik Nakrani · Inland Supreme Constructions
           </span>
-        ))}
-      </div>
-
-      <div style={{ display: "flex", justifyContent: "center", gap: 10, flexWrap: "wrap", marginBottom: 28 }}>
-        {["OSHA 10 & 30", "CMIT", "Procore Certified", "SolarEdge Certified"].map(cert => (
-          <span key={cert} style={{
-            background: "var(--chip-bg)", border: "1px solid var(--chip-border)",
-            color: "var(--text-3)", fontSize: 11, padding: "4px 12px", borderRadius: 100, fontWeight: 500,
-          }}>{cert}</span>
-        ))}
-      </div>
-
-      <div style={{ color: "var(--footer-copy)", fontSize: 11, letterSpacing: "0.05em" }}>
-        © {new Date().getFullYear()} Hardik Nakrani · Inland Supreme Constructions · Built with precision
+          <span style={{ color: "rgba(255,255,255,0.22)", fontSize: 11, letterSpacing: "0.04em" }}>
+            Built with precision
+          </span>
+        </div>
       </div>
     </footer>
   );

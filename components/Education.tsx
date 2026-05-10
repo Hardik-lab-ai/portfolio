@@ -11,9 +11,8 @@ const EDUCATION = [
     year: "2015",
     month: "May",
     gpa: "4.0 / 4.0",
-    color: "#10B981",
-    icon: "📐",
     badge: "Perfect GPA",
+    accent: false,
     courses: [
       "Technical Drawing & CAD", "Surveying & Levelling",
       "Construction Math", "Site Supervision",
@@ -28,9 +27,8 @@ const EDUCATION = [
     year: "2018",
     month: "May",
     gpa: "3.75 / 4.0",
-    color: "#C9A84C",
-    icon: "🎓",
     badge: "Distinction",
+    accent: false,
     courses: [
       "Structural Analysis & Design", "Geotechnical Engineering",
       "Construction Materials", "Fluid Mechanics",
@@ -45,9 +43,8 @@ const EDUCATION = [
     year: "2020",
     month: "Dec",
     gpa: "4.0 / 4.0",
-    color: "#F59E0B",
-    icon: "🏛️",
     badge: "Perfect GPA",
+    accent: true,
     courses: [
       "Project Lifecycle Management", "Cost & Schedule Control",
       "Construction Law & Contracts", "Risk Management",
@@ -65,67 +62,44 @@ function EduCard({ edu, index }: { edu: Edu; index: number }) {
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 36 }}
+      initial={{ opacity: 0, y: 32 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.55, delay: index * 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
       style={{ display: "flex", flexDirection: "column", flex: 1 }}
     >
-      {/* Card */}
-      <div style={{
-        flex: 1,
-        borderRadius: 18,
-        padding: "22px 22px 18px",
-        position: "relative",
-        overflow: "hidden",
-        background: "var(--glass-bg)",
-        border: "1px solid var(--glass-border)",
-        borderTop: `3px solid ${edu.color}`,
+      <div className="card" style={{
+        flex: 1, borderRadius: 10, padding: "24px 22px 20px",
+        position: "relative", overflow: "hidden",
+        borderTop: edu.accent ? "3px solid var(--accent)" : "3px solid var(--border-strong)",
       }}>
-
-        {/* Ghost year watermark */}
+        {/* Ghost year */}
         <div style={{
-          position: "absolute",
-          right: -8,
-          top: -10,
-          fontSize: 100,
-          fontFamily: "var(--font-heading)",
-          fontWeight: 900,
-          color: edu.color,
-          opacity: 0.06,
-          lineHeight: 1,
-          userSelect: "none",
-          pointerEvents: "none",
-          letterSpacing: "-0.04em",
+          position: "absolute", right: -6, top: -8,
+          fontSize: 96, fontFamily: "var(--font-heading)", fontWeight: 900,
+          color: edu.accent ? "var(--accent)" : "var(--text-3)",
+          opacity: 0.05, lineHeight: 1, userSelect: "none", pointerEvents: "none",
         }}>
           {edu.year}
         </div>
 
-        {/* Header row: icon + degree label + GPA */}
+        {/* Header row */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ fontSize: 24 }}>{edu.icon}</span>
-            <div>
-              <div style={{ color: edu.color, fontSize: 9, fontWeight: 800, letterSpacing: "0.12em", marginBottom: 2 }}>
-                {edu.degree.toUpperCase()}
-              </div>
-              <div style={{
-                fontFamily: "var(--font-heading)", fontSize: 15, fontWeight: 700,
-                color: "var(--text-1)", lineHeight: 1.25,
-              }}>
-                {edu.field}
-              </div>
+          <div style={{ flex: 1, paddingRight: 12 }}>
+            <div style={{ color: edu.accent ? "var(--accent)" : "var(--text-3)", fontSize: 9, fontWeight: 800, letterSpacing: "0.14em", marginBottom: 4 }}>
+              {edu.degree.toUpperCase()}
+            </div>
+            <div style={{ fontFamily: "var(--font-heading)", fontSize: 15, fontWeight: 700, color: "var(--text-1)", lineHeight: 1.25 }}>
+              {edu.field}
             </div>
           </div>
           <div style={{
             textAlign: "center",
-            background: `${edu.color}15`,
-            border: `1px solid ${edu.color}30`,
-            borderRadius: 10,
-            padding: "5px 10px",
-            flexShrink: 0,
+            background: edu.accent ? "var(--accent-light)" : "var(--chip-bg)",
+            border: `1px solid ${edu.accent ? "rgba(232,96,10,0.22)" : "var(--chip-border)"}`,
+            borderRadius: 8, padding: "6px 10px", flexShrink: 0,
           }}>
-            <div style={{ color: "var(--text-3)", fontSize: 8, fontWeight: 700, letterSpacing: "0.1em" }}>GPA</div>
-            <div style={{ color: edu.color, fontSize: 14, fontWeight: 800, fontFamily: "var(--font-heading)", lineHeight: 1.2 }}>
+            <div style={{ color: "var(--text-3)", fontSize: 8, fontWeight: 700, letterSpacing: "0.10em" }}>GPA</div>
+            <div style={{ color: edu.accent ? "var(--accent)" : "var(--text-2)", fontSize: 15, fontWeight: 800, fontFamily: "var(--font-heading)", lineHeight: 1.2 }}>
               {edu.gpa.split(" / ")[0]}
             </div>
             <div style={{ color: "var(--text-3)", fontSize: 8 }}>/ {edu.gpa.split(" / ")[1]}</div>
@@ -133,80 +107,60 @@ function EduCard({ edu, index }: { edu: Edu; index: number }) {
         </div>
 
         {/* School + location */}
-        <div style={{ marginBottom: 14 }}>
-          <div style={{ color: "var(--text-2)", fontSize: 12, fontWeight: 600, marginBottom: 3 }}>
-            {edu.school}
-          </div>
-          <div style={{ display: "flex", gap: 12 }}>
-            <span style={{ color: "var(--text-3)", fontSize: 11 }}>📍 {edu.location}</span>
-            <span style={{ color: "var(--text-3)", fontSize: 11 }}>📅 {edu.month} {edu.year}</span>
+        <div style={{ marginBottom: 12 }}>
+          <div style={{ color: "var(--text-2)", fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{edu.school}</div>
+          <div style={{ display: "flex", gap: 14 }}>
+            <span style={{ color: "var(--text-3)", fontSize: 11 }}>{edu.location}</span>
+            <span style={{ color: "var(--text-3)", fontSize: 11 }}>{edu.month} {edu.year}</span>
           </div>
         </div>
 
         {/* Badge */}
         <div style={{ marginBottom: 14 }}>
           <span style={{
-            background: `${edu.color}15`,
-            border: `1px solid ${edu.color}35`,
-            color: edu.color,
-            fontSize: 9, fontWeight: 800,
-            padding: "3px 10px", borderRadius: 100, letterSpacing: "0.08em",
+            background: edu.accent ? "var(--accent-light)" : "var(--chip-bg)",
+            border: `1px solid ${edu.accent ? "rgba(232,96,10,0.20)" : "var(--chip-border)"}`,
+            color: edu.accent ? "var(--accent)" : "var(--text-3)",
+            fontSize: 9, fontWeight: 800, padding: "3px 10px", borderRadius: 4, letterSpacing: "0.10em",
           }}>
-            ✦ {edu.badge}
+            {edu.badge}
           </span>
         </div>
 
-        {/* Divider */}
-        <div style={{
-          height: 1,
-          background: `linear-gradient(90deg, ${edu.color}40, transparent)`,
-          marginBottom: 12,
-        }} />
+        <div style={{ height: 1, background: "var(--border)", marginBottom: 14 }} />
 
         {/* Courses */}
         <div>
-          <div style={{ color: "var(--text-3)", fontSize: 9, fontWeight: 700, letterSpacing: "0.1em", marginBottom: 8 }}>
+          <div style={{ color: "var(--text-3)", fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", marginBottom: 10 }}>
             KEY COURSEWORK
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             {edu.courses.map((course, ci) => (
               <motion.div
                 key={course}
                 initial={{ opacity: 0, x: -8 }}
                 animate={inView ? { opacity: 1, x: 0 } : {}}
-                transition={{ duration: 0.25, delay: index * 0.15 + ci * 0.05 + 0.35 }}
-                style={{ display: "flex", alignItems: "center", gap: 7 }}
+                transition={{ duration: 0.22, delay: index * 0.15 + ci * 0.05 + 0.3 }}
+                style={{ display: "flex", alignItems: "center", gap: 8 }}
               >
-                <div style={{
-                  width: 4, height: 4, borderRadius: "50%",
-                  background: edu.color, flexShrink: 0,
-                }} />
-                <span style={{ color: "var(--text-4)", fontSize: 11, lineHeight: 1.3 }}>
-                  {course}
-                </span>
+                <div style={{ width: 4, height: 4, borderRadius: "50%", background: edu.accent ? "var(--accent)" : "var(--border-strong)", flexShrink: 0 }} />
+                <span style={{ color: "var(--text-2)", fontSize: 12, lineHeight: 1.3 }}>{course}</span>
               </motion.div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Connector line down to timeline */}
-      <div style={{
-        width: 2,
-        height: 24,
-        background: `linear-gradient(${edu.color}, ${edu.color}40)`,
-        margin: "0 auto",
-        flexShrink: 0,
-      }} />
+      {/* Connector */}
+      <div style={{ width: 2, height: 22, background: `linear-gradient(var(--border-strong), transparent)`, margin: "0 auto", flexShrink: 0 }} />
 
-      {/* Timeline node */}
-      <div style={{ display: "flex", justifyContent: "center", position: "relative", flexShrink: 0 }}>
+      {/* Node */}
+      <div style={{ display: "flex", justifyContent: "center", flexShrink: 0 }}>
         <div style={{
-          width: 16, height: 16, borderRadius: "50%",
-          background: edu.color,
-          boxShadow: `0 0 0 4px ${edu.color}25, 0 0 16px ${edu.color}50`,
+          width: 14, height: 14, borderRadius: "50%",
+          background: edu.accent ? "var(--accent)" : "var(--border-strong)",
+          boxShadow: edu.accent ? "0 0 0 4px rgba(232,96,10,0.18)" : "0 0 0 4px var(--border)",
           zIndex: 2,
-          flexShrink: 0,
         }} />
       </div>
     </motion.div>
@@ -214,67 +168,48 @@ function EduCard({ edu, index }: { edu: Edu; index: number }) {
 }
 
 export default function Education() {
-  const sectionRef = useRef(null);
   const headerRef = useRef(null);
   const headerInView = useInView(headerRef, { once: true, margin: "-40px" });
   const lineRef = useRef(null);
   const lineInView = useInView(lineRef, { once: true, margin: "-40px" });
 
   return (
-    <section
-      id="education"
-      ref={sectionRef}
-      className="section-bg-b-r"
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        padding: "56px 0",
-        boxSizing: "border-box",
-      }}
-    >
-      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 28px", width: "100%" }}>
+    <section id="education" style={{ background: "var(--bg-alt)", padding: "100px 0" }}>
+      <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 32px" }}>
 
-        {/* Heading */}
         <motion.div
           ref={headerRef}
           initial={{ opacity: 0, y: 18 }}
           animate={headerInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5 }}
-          style={{ textAlign: "center", marginBottom: 44 }}
+          style={{ textAlign: "center", marginBottom: 56 }}
         >
-          <div className="section-label" style={{ marginBottom: 10 }}>Academic Foundation</div>
+          <span className="section-label" style={{ marginBottom: 14 }}>Academic Foundation</span>
           <h2 style={{
-            fontFamily: "var(--font-heading)", fontSize: "clamp(1.6rem, 3vw, 2.4rem)",
-            fontWeight: 700, color: "var(--text-1)", letterSpacing: "-0.02em", margin: 0,
+            fontFamily: "var(--font-heading)", fontSize: "clamp(1.8rem, 3vw, 2.6rem)",
+            fontWeight: 700, color: "var(--text-1)", letterSpacing: "-0.02em",
           }}>
-            Engineered to{" "}
-            <span style={{
-              backgroundImage: "linear-gradient(135deg, var(--accent), var(--accent-2))",
-              WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent",
-            }}>Lead</span>
+            Engineered to Lead
           </h2>
         </motion.div>
 
-        {/* Cards + timeline */}
-        <div style={{ display: "flex", gap: 20, alignItems: "flex-end" }}>
+        {/* Cards */}
+        <div style={{ display: "flex", gap: 22, alignItems: "flex-end" }}>
           {EDUCATION.map((edu, i) => (
             <EduCard key={edu.year} edu={edu} index={i} />
           ))}
         </div>
 
-        {/* Horizontal timeline line */}
-        <div ref={lineRef} style={{ position: "relative", height: 3, marginTop: -2 }}>
+        {/* Timeline line */}
+        <div ref={lineRef} style={{ position: "relative", height: 2, marginTop: -1 }}>
           <motion.div
             initial={{ scaleX: 0 }}
             animate={lineInView ? { scaleX: 1 } : {}}
-            transition={{ duration: 1, delay: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+            transition={{ duration: 0.9, delay: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
             style={{
               position: "absolute", inset: 0,
-              background: "linear-gradient(90deg, #10B981, #C9A84C, #F59E0B)",
-              borderRadius: 2,
-              transformOrigin: "left center",
+              background: "linear-gradient(90deg, var(--border-strong), var(--accent), var(--border-strong))",
+              borderRadius: 2, transformOrigin: "left center",
             }}
           />
         </div>
@@ -283,7 +218,7 @@ export default function Education() {
         <div style={{ display: "flex", marginTop: 12 }}>
           {EDUCATION.map((edu) => (
             <div key={edu.year} style={{ flex: 1, textAlign: "center" }}>
-              <div style={{ color: edu.color, fontSize: 13, fontWeight: 800, fontFamily: "var(--font-heading)" }}>
+              <div style={{ color: edu.accent ? "var(--accent)" : "var(--text-3)", fontSize: 14, fontWeight: 800, fontFamily: "var(--font-heading)" }}>
                 {edu.year}
               </div>
               <div style={{ color: "var(--text-3)", fontSize: 10 }}>{edu.month}</div>

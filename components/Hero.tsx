@@ -1,11 +1,32 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 const ROLES = [
   "Solar EPC Project Manager",
   "Construction Engineering Leader",
   "Renewable Energy Specialist",
+  "Microgrid & BESS Project Manager",
   "Multi-Million Dollar Delivery Expert",
+];
+
+interface StatItem {
+  num?: number;
+  text?: string;
+  pre?: string;
+  suf?: string;
+  label: string;
+  decimal?: boolean;
+}
+
+const HERO_STATS: StatItem[] = [
+  { num: 50,  pre: "",  suf: "+ MW",   label: "Solar Capacity Delivered"   },
+  { num: 100, pre: "$", suf: "M+",    label: "Project Portfolio Value"     },
+  { num: 500, pre: "$", suf: "K+",    label: "Cost Savings Achieved"       },
+  { num: 4,   pre: "",  suf: " GPA",  label: "Master's Degree — Stevens",  decimal: true },
+  { num: 5,   pre: "",  suf: "+ Yrs", label: "USA, Canada & India"          },
+  { num: 0,   pre: "",  suf: "",      label: "Safety Incidents — OSHA 30"  },
+  { num: 2,   pre: "",  suf: " Yrs",  label: "BESS Project Experience"     },
+  { text: "Microgrid",                 label: "Distributed Energy Systems" },
 ];
 
 export default function Hero() {
@@ -13,6 +34,8 @@ export default function Hero() {
   const [displayed, setDisplayed] = useState("");
   const [deleting,  setDeleting]  = useState(false);
   const [charIdx,   setCharIdx]   = useState(0);
+  const [counts,    setCounts]    = useState<number[]>(HERO_STATS.map(() => 0));
+  const rightRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const current = ROLES[roleIdx];
@@ -30,167 +53,240 @@ export default function Hero() {
     return () => clearTimeout(timeout);
   }, [charIdx, deleting, roleIdx]);
 
+  useEffect(() => {
+    const el = rightRef.current;
+    if (!el) return;
+    const targets = HERO_STATS.map(s => s.num ?? 0);
+    let started = false;
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !started) {
+        started = true;
+        const duration = 2000;
+        const t0 = performance.now();
+        const tick = (now: number) => {
+          const p = Math.min((now - t0) / duration, 1);
+          const e = 1 - Math.pow(1 - p, 3);
+          setCounts(targets.map(n => e * n));
+          if (p < 1) requestAnimationFrame(tick);
+          else setCounts(targets);
+        };
+        requestAnimationFrame(tick);
+        obs.disconnect();
+      }
+    }, { threshold: 0.2 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  const displayStat = (stat: StatItem, count: number): string => {
+    if (stat.text) return stat.text;
+    const n = stat.decimal ? count.toFixed(1) : Math.floor(count).toString();
+    return `${stat.pre ?? ""}${n}${stat.suf ?? ""}`;
+  };
+
   return (
-    <section
-      id="hero"
-      className="blueprint-grid"
-      style={{
-        minHeight: "100vh",
-        display: "flex", flexDirection: "column",
-        alignItems: "center", justifyContent: "center",
-        position: "relative", overflow: "hidden",
-        paddingTop: 100, paddingBottom: 60,
-      }}
-    >
-      {/* Radial ambient glow */}
-      <div style={{
-        position: "absolute", top: "38%", left: "50%", transform: "translate(-50%,-50%)",
-        width: 700, height: 700, borderRadius: "50%",
-        background: "radial-gradient(circle, rgba(255,130,0,0.10) 0%, rgba(255,180,0,0.04) 45%, transparent 70%)",
-        pointerEvents: "none",
-      }} />
+    <section id="hero" className="hero-grid">
 
-      {/* Floating badges */}
+      {/* LEFT — text content */}
       <div style={{
-        position: "absolute", top: "18%", left: "8%",
-        background: "var(--glass-bg)", border: "1px solid rgba(245,158,11,0.25)",
-        borderRadius: 12, padding: "12px 18px", backdropFilter: "blur(12px)",
-        animation: "float 5s ease-in-out infinite",
+        display: "flex", flexDirection: "column", justifyContent: "center",
+        padding: "120px 10% 80px 10%",
+        background: "var(--bg-page)",
+        position: "relative",
+        overflow: "hidden",
       }}>
-        <div style={{ color: "var(--accent)", fontSize: 11, fontWeight: 600, letterSpacing: "0.1em" }}>⚡ SOLAR EPC</div>
-        <div style={{ color: "var(--text-1)", fontSize: 18, fontWeight: 700, fontFamily: "var(--font-heading)" }}>50+ MW</div>
-        <div style={{ color: "var(--text-2)", fontSize: 11 }}>Delivered</div>
-      </div>
-
-      <div style={{
-        position: "absolute", top: "22%", right: "8%",
-        background: "var(--glass-bg)", border: "1px solid rgba(16,185,129,0.25)",
-        borderRadius: 12, padding: "12px 18px", backdropFilter: "blur(12px)",
-        animation: "float 6s ease-in-out infinite 1s",
-      }}>
-        <div style={{ color: "var(--teal)", fontSize: 11, fontWeight: 600, letterSpacing: "0.1em" }}>💰 PORTFOLIO</div>
-        <div style={{ color: "var(--text-1)", fontSize: 18, fontWeight: 700, fontFamily: "var(--font-heading)" }}>$100M+</div>
-        <div style={{ color: "var(--text-2)", fontSize: 11 }}>Project Value</div>
-      </div>
-
-      <div style={{
-        position: "absolute", bottom: "22%", left: "7%",
-        background: "var(--glass-bg)", border: "1px solid rgba(201,168,76,0.25)",
-        borderRadius: 12, padding: "12px 18px", backdropFilter: "blur(12px)",
-        animation: "float 7s ease-in-out infinite 0.5s",
-      }}>
-        <div style={{ color: "var(--accent-2)", fontSize: 11, fontWeight: 600, letterSpacing: "0.1em" }}>🏆 SAVINGS</div>
-        <div style={{ color: "var(--text-1)", fontSize: 18, fontWeight: 700, fontFamily: "var(--font-heading)" }}>$500K+</div>
-        <div style={{ color: "var(--text-2)", fontSize: 11 }}>Cost Optimized</div>
-      </div>
-
-      <div style={{
-        position: "absolute", bottom: "25%", right: "7%",
-        background: "var(--glass-bg)", border: "1px solid var(--chip-border)",
-        borderRadius: 12, padding: "12px 18px", backdropFilter: "blur(12px)",
-        animation: "float 5.5s ease-in-out infinite 1.5s",
-      }}>
-        <div style={{ color: "var(--text-2)", fontSize: 11, fontWeight: 600, letterSpacing: "0.1em" }}>📋 CERTS</div>
-        <div style={{ color: "var(--text-1)", fontSize: 18, fontWeight: 700, fontFamily: "var(--font-heading)" }}>OSHA 30</div>
-        <div style={{ color: "var(--text-2)", fontSize: 11 }}>Certified</div>
-      </div>
-
-      {/* Main content */}
-      <div style={{ textAlign: "center", position: "relative", zIndex: 10, maxWidth: 800, padding: "0 24px" }}>
-        {/* Availability chip */}
+        {/* Soft background accent glows */}
         <div style={{
-          display: "inline-flex", alignItems: "center", gap: 8,
-          background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.3)",
-          borderRadius: 100, padding: "6px 18px", marginBottom: 28,
-          animation: "fadeUp 0.5s ease-out forwards",
-        }}>
-          <span style={{ width: 7, height: 7, borderRadius: "50%", background: "#10B981", display: "inline-block", boxShadow: "0 0 8px #10B981" }} />
-          <span style={{ color: "var(--teal)", fontSize: 12, fontWeight: 600, letterSpacing: "0.08em" }}>AVAILABLE FOR OPPORTUNITIES</span>
-        </div>
+          position: "absolute", top: "15%", left: "-15%",
+          width: 520, height: 520, borderRadius: "50%",
+          background: "radial-gradient(circle, var(--accent-light) 0%, transparent 65%)",
+          filter: "blur(60px)", pointerEvents: "none", opacity: 0.9,
+        }} />
+        <div style={{
+          position: "absolute", bottom: "5%", right: "-5%",
+          width: 320, height: 320, borderRadius: "50%",
+          background: "radial-gradient(circle, var(--accent-2-light) 0%, transparent 65%)",
+          filter: "blur(50px)", pointerEvents: "none", opacity: 0.7,
+        }} />
 
         {/* Name */}
         <h1 style={{
           fontFamily: "var(--font-heading)",
-          fontSize: "clamp(3rem, 8vw, 6.5rem)",
-          fontWeight: 700, lineHeight: 1.0, letterSpacing: "-0.02em",
-          marginBottom: 12,
-          animation: "fadeUp 0.7s ease-out 0.1s forwards", opacity: 0,
+          fontSize: "clamp(3.5rem, 7vw, 6.5rem)",
+          fontWeight: 700,
+          lineHeight: 0.92,
+          letterSpacing: "-0.03em",
+          color: "var(--text-1)",
+          marginBottom: 20,
+          animation: "fadeUp 0.6s ease-out 0.1s forwards", opacity: 0,
         }}>
-          <span style={{ color: "var(--text-1)" }}>HARDIK</span>{" "}
-          <span className="text-shimmer">NAKRANI</span>
+          HARDIK<br />NAKRANI
         </h1>
+
+        {/* Accent bar */}
+        <span className="accent-bar" style={{ marginBottom: 24, animation: "fadeUp 0.6s ease-out 0.15s forwards", opacity: 0 }} />
 
         {/* Typewriter role */}
         <div style={{
-          fontSize: "clamp(1rem, 2.5vw, 1.35rem)",
-          color: "var(--text-2)", fontWeight: 400, minHeight: "2rem", marginBottom: 32,
-          animation: "fadeUp 0.7s ease-out 0.2s forwards", opacity: 0,
+          fontSize: "clamp(1rem, 1.8vw, 1.15rem)",
+          color: "var(--text-2)", fontWeight: 400, minHeight: "1.8rem", marginBottom: 40,
+          animation: "fadeUp 0.6s ease-out 0.2s forwards", opacity: 0,
         }}>
           <span style={{ color: "var(--accent)", fontWeight: 600 }}>{displayed}</span>
           <span className="cursor" />
         </div>
 
-        {/* Location & contact strip */}
+        {/* Contact strip */}
         <div style={{
-          display: "flex", alignItems: "center", justifyContent: "center",
-          gap: 24, flexWrap: "wrap", marginBottom: 44,
-          animation: "fadeUp 0.7s ease-out 0.3s forwards", opacity: 0,
+          display: "flex", flexDirection: "column", gap: 10, marginBottom: 44,
+          animation: "fadeUp 0.6s ease-out 0.3s forwards", opacity: 0,
         }}>
           {[
-            { icon: "📍", text: "Jersey City, NJ" },
-            { icon: "📞", text: "(201) 657-9308" },
-            { icon: "✉️", text: "Hardiknakrani3695@gmail.com" },
-          ].map(({ icon, text }) => (
-            <div key={text} style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--text-2)", fontSize: 13 }}>
-              <span>{icon}</span><span>{text}</span>
+            { label: "Location", value: "Jersey City, NJ" },
+            { label: "Phone",    value: "(201) 657-9308"   },
+            { label: "Email",    value: "Hardiknakrani3695@gmail.com" },
+          ].map(({ label, value }) => (
+            <div key={label} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ color: "var(--text-3)", fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", width: 56, flexShrink: 0 }}>{label.toUpperCase()}</span>
+              <span style={{ width: 1, height: 12, background: "var(--border-strong)", flexShrink: 0 }} />
+              <span style={{ color: "var(--text-2)", fontSize: 13 }}>{value}</span>
             </div>
           ))}
         </div>
 
-        {/* CTA buttons */}
+        {/* CTAs */}
         <div style={{
-          display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap",
-          animation: "fadeUp 0.7s ease-out 0.4s forwards", opacity: 0,
+          display: "flex", gap: 12, flexWrap: "wrap",
+          animation: "fadeUp 0.6s ease-out 0.4s forwards", opacity: 0,
         }}>
-          <a href="#experience" className="btn-primary" style={{
-            background: "linear-gradient(135deg, var(--accent), var(--accent-3))",
-            color: "#0A1628", padding: "14px 32px", borderRadius: 100,
-            fontSize: 14, fontWeight: 700, textDecoration: "none",
-            display: "flex", alignItems: "center", gap: 10, letterSpacing: "0.04em",
-          }}>
-            <span>🏗️</span> View My Work
-          </a>
-          <a href="#contact" style={{
-            background: "transparent", color: "var(--text-1)", padding: "14px 32px", borderRadius: 100,
-            fontSize: 14, fontWeight: 600, textDecoration: "none",
-            display: "flex", alignItems: "center", gap: 10,
-            border: "1px solid var(--glass-border)", transition: "all 0.4s ease",
-          }}
-            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(245,158,11,0.5)"; (e.currentTarget as HTMLAnchorElement).style.color = "var(--accent)"; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = "var(--glass-border)"; (e.currentTarget as HTMLAnchorElement).style.color = "var(--text-1)"; }}
-          >
-            Get In Touch →
-          </a>
+          <a href="#experience" className="btn-primary">View My Work →</a>
+          <a href="#contact" className="btn-secondary">Get In Touch</a>
+        </div>
+
+        {/* Scroll indicator */}
+        <div style={{
+          position: "absolute", bottom: 32, left: "10%",
+          display: "flex", alignItems: "center", gap: 8,
+          animation: "fadeUp 0.6s ease-out 1s forwards", opacity: 0,
+        }}>
+          <div style={{ width: 20, height: 32, borderRadius: 10, border: "1.5px solid var(--border-strong)", display: "flex", justifyContent: "center", paddingTop: 5 }}>
+            <div style={{ width: 3, height: 7, borderRadius: 2, background: "var(--accent)", animation: "fadeUp 1.5s ease-in-out infinite" }} />
+          </div>
+          <span style={{ color: "var(--text-3)", fontSize: 10, letterSpacing: "0.14em", fontWeight: 600 }}>SCROLL</span>
         </div>
       </div>
 
-      {/* Scroll indicator */}
-      <div style={{
-        position: "absolute", bottom: 32, left: "50%", transform: "translateX(-50%)",
-        display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
-        animation: "fadeUp 0.7s ease-out 1s forwards", opacity: 0,
+      {/* RIGHT — stats panel */}
+      <div ref={rightRef} style={{
+        background: "var(--bg-alt)",
+        display: "flex", flexDirection: "column", justifyContent: "center",
+        padding: "120px 10% 80px",
+        position: "relative", overflow: "hidden",
+        borderLeft: "1px solid var(--border)",
       }}>
-        <span style={{ color: "var(--text-3)", fontSize: 11, letterSpacing: "0.12em", fontWeight: 500 }}>SCROLL DOWN</span>
+        {/* Animated color blobs */}
         <div style={{
-          width: 24, height: 38, borderRadius: 12, border: "1.5px solid var(--glass-border)",
-          display: "flex", justifyContent: "center", paddingTop: 6,
-        }}>
-          <div style={{ width: 4, height: 8, borderRadius: 2, background: "var(--accent)", animation: "float 1.5s ease-in-out infinite" }} />
+          position: "absolute", top: "-15%", right: "-10%",
+          width: 400, height: 400, borderRadius: "50%",
+          background: "radial-gradient(circle, var(--accent-light) 0%, transparent 70%)",
+          filter: "blur(80px)", pointerEvents: "none",
+          animation: "blobFloat1 9s ease-in-out infinite",
+        }} />
+        <div style={{
+          position: "absolute", bottom: "-5%", left: "-15%",
+          width: 340, height: 340, borderRadius: "50%",
+          background: "radial-gradient(circle, var(--accent-2-light) 0%, transparent 70%)",
+          filter: "blur(70px)", pointerEvents: "none",
+          animation: "blobFloat2 12s ease-in-out infinite",
+        }} />
+        <div style={{
+          position: "absolute", top: "42%", left: "35%",
+          width: 240, height: 240, borderRadius: "50%",
+          background: "radial-gradient(circle, var(--accent-light) 0%, transparent 70%)",
+          filter: "blur(55px)", pointerEvents: "none",
+          animation: "blobFloat3 7s ease-in-out infinite",
+        }} />
+
+        <div style={{ position: "relative" }}>
+          <div style={{ color: "var(--accent)", fontSize: 10, fontWeight: 700, letterSpacing: "0.20em", marginBottom: 24 }}>
+            BY THE NUMBERS
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+            {HERO_STATS.map((stat, i) => (
+              <div
+                key={stat.label}
+                style={{
+                  background: "var(--bg-card)",
+                  border: "1px solid var(--border)",
+                  borderRadius: 10, padding: "20px 18px",
+                  animation: `fadeUp 0.6s ease-out ${0.1 + i * 0.08}s forwards`, opacity: 0,
+                  transition: "border-color 0.3s ease, box-shadow 0.3s ease, transform 0.25s ease",
+                  cursor: "default",
+                }}
+                onMouseEnter={e => {
+                  const el = e.currentTarget as HTMLDivElement;
+                  el.style.borderColor = "var(--accent)";
+                  el.style.boxShadow = "var(--shadow-md)";
+                  el.style.transform = "translateY(-3px)";
+                }}
+                onMouseLeave={e => {
+                  const el = e.currentTarget as HTMLDivElement;
+                  el.style.borderColor = "var(--border)";
+                  el.style.boxShadow = "none";
+                  el.style.transform = "translateY(0)";
+                }}
+              >
+                <div style={{
+                  fontFamily: "var(--font-heading)",
+                  fontSize: "clamp(1.3rem, 2.2vw, 1.75rem)",
+                  fontWeight: 700, color: "var(--accent)", lineHeight: 1, marginBottom: 6,
+                }}>
+                  {displayStat(stat, counts[i])}
+                </div>
+                <div style={{ color: "var(--text-3)", fontSize: 11, lineHeight: 1.4, fontWeight: 500 }}>
+                  {stat.label}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Certifications row */}
+          <div style={{ marginTop: 24, paddingTop: 20, borderTop: "1px solid var(--border)" }}>
+            <div style={{ color: "var(--text-3)", fontSize: 9, fontWeight: 700, letterSpacing: "0.18em", marginBottom: 10 }}>
+              CERTIFICATIONS
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+              {["OSHA 30", "OSHA 10", "CMIT", "Procore", "SolarEdge"].map(cert => (
+                <span
+                  key={cert}
+                  style={{
+                    background: "var(--chip-bg)", border: "1px solid var(--chip-border)",
+                    color: "var(--text-2)", fontSize: 10, fontWeight: 600,
+                    padding: "4px 10px", borderRadius: 4, letterSpacing: "0.04em",
+                    transition: "background 0.2s ease, border-color 0.2s ease, color 0.2s ease",
+                    cursor: "default",
+                  }}
+                  onMouseEnter={e => {
+                    const el = e.currentTarget as HTMLSpanElement;
+                    el.style.background = "var(--accent-light)";
+                    el.style.borderColor = "var(--accent)";
+                    el.style.color = "var(--accent)";
+                  }}
+                  onMouseLeave={e => {
+                    const el = e.currentTarget as HTMLSpanElement;
+                    el.style.background = "var(--chip-bg)";
+                    el.style.borderColor = "var(--chip-border)";
+                    el.style.color = "var(--text-2)";
+                  }}
+                >
+                  {cert}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
-
-      {/* Construction tape bottom accent */}
-      <div className="tape-stripe" style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 4, opacity: 0.6 }} />
     </section>
   );
 }

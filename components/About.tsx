@@ -2,10 +2,10 @@
 import { useEffect, useRef } from "react";
 
 const HIGHLIGHTS = [
-  { icon: "🏗️", label: "5+ Years",      sub: "Construction & Renewable Energy PM"       },
-  { icon: "☀️", label: "Solar EPC",      sub: "Full lifecycle from engineering to startup" },
-  { icon: "🌍", label: "US & India",     sub: "International project delivery experience"  },
-  { icon: "🦺", label: "Zero Incidents", sub: "OSHA-enforced safety-first culture"         },
+  { label: "5+ Years",       sub: "Solar EPC & Construction PM — US, Canada & India" },
+  { label: "Solar EPC",      sub: "Canopy, rooftop, landfill & ground-mount"         },
+  { label: "BESS & Microgrid", sub: "2 yrs battery storage & off-grid microgrid PM"  },
+  { label: "Zero Incidents", sub: "OSHA 30 — safety-first culture on every site"     },
 ];
 
 export default function About() {
@@ -14,91 +14,70 @@ export default function About() {
   useEffect(() => {
     const obs = new IntersectionObserver(
       entries => { entries.forEach(e => { if (e.isIntersecting) e.target.classList.add("visible"); }); },
-      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
+      { threshold: 0.10, rootMargin: "0px 0px -40px 0px" }
     );
     ref.current?.querySelectorAll(".reveal, .reveal-left, .reveal-right").forEach(el => obs.observe(el));
     return () => obs.disconnect();
   }, []);
 
   return (
-    <section id="about" ref={ref} className="section-bg-b-r" style={{ padding: "100px 0", position: "relative" }}>
-      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center" }}>
+    <section id="about" ref={ref} style={{ background: "var(--bg-page)", padding: "100px 0" }}>
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 32px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "center" }}>
 
           {/* Left — text */}
           <div className="reveal-left">
-            <div className="section-label" style={{ marginBottom: 16 }}>About Me</div>
+            <span className="section-label" style={{ marginBottom: 16 }}>About Me</span>
             <h2 style={{
               fontFamily: "var(--font-heading)", fontSize: "clamp(1.8rem, 3vw, 2.6rem)",
-              fontWeight: 700, color: "var(--text-1)", letterSpacing: "-0.02em", marginBottom: 24, lineHeight: 1.2,
+              fontWeight: 700, color: "var(--text-1)", letterSpacing: "-0.02em", marginBottom: 10, lineHeight: 1.15,
             }}>
-              Where Precision Meets{" "}
-              <span style={{
-                backgroundImage: "linear-gradient(135deg, var(--accent), var(--accent-2))",
-                WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent",
-              }}>Purpose</span>
+              Where Precision Meets Purpose
             </h2>
+            <span className="accent-bar" style={{ marginBottom: 28 }} />
 
             <p style={{ color: "var(--text-2)", fontSize: 15, lineHeight: 1.85, marginBottom: 20 }}>
-              With over half a decade of hands-on experience spanning two continents, I specialize in delivering complex solar EPC and construction projects with zero compromise on quality, safety, or timeline. From railway station developments in Mumbai to 50+ MW solar farms across the United States — every project is a blueprint for excellence.
+              With over half a decade of hands-on experience across the USA, Canada, and India, I specialize in delivering complex renewable energy and construction projects — solar canopy, rooftop, landfill, Battery Energy Storage Systems (BESS), and off-grid microgrids — with zero compromise on quality, safety, or timeline.
             </p>
-            <p style={{ color: "var(--text-2)", fontSize: 15, lineHeight: 1.85, marginBottom: 32 }}>
-              Holding a <strong style={{ color: "var(--text-1)" }}>Master&apos;s in Construction Engineering &amp; Management</strong> from Stevens Institute of Technology (perfect 4.0 GPA), I combine rigorous academic foundations with practical field leadership — wielding Primavera P6, Procore, and SolarEdge systems as naturally as a carpenter wields a hammer.
+            <p style={{ color: "var(--text-2)", fontSize: 15, lineHeight: 1.85, marginBottom: 36 }}>
+              Holding a <strong style={{ color: "var(--text-1)" }}>Master&apos;s in Construction Engineering &amp; Management</strong> from Stevens Institute of Technology (perfect 4.0 GPA), I&apos;ve led a $100M+ project portfolio at Core Development Group — from a 4.5 MW hospital solar canopy with battery storage in San Diego to a 1 MW / 4 MWh island microgrid in the Caribbean — wielding Primavera P6, Procore, and SolarEdge systems across every phase.
             </p>
 
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-              <a href="#experience" style={{
-                display: "inline-flex", alignItems: "center", gap: 8,
-                background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.3)",
-                color: "var(--accent)", padding: "10px 22px", borderRadius: 100,
-                fontSize: 13, fontWeight: 600, textDecoration: "none", transition: "all 0.3s ease",
-              }}
-                onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = "rgba(245,158,11,0.18)"; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = "rgba(245,158,11,0.1)"; }}
-              >
-                View Experience →
-              </a>
-              <a href="#contact" style={{
-                display: "inline-flex", alignItems: "center", gap: 8,
-                background: "var(--chip-bg)", border: "1px solid var(--chip-border)",
-                color: "var(--text-2)", padding: "10px 22px", borderRadius: 100,
-                fontSize: 13, fontWeight: 600, textDecoration: "none", transition: "all 0.3s ease",
-              }}
-                onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.color = "var(--text-1)"; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.color = "var(--text-2)"; }}
-              >
-                Contact Me
-              </a>
+              <a href="#experience" className="btn-primary">View Experience →</a>
+              <a href="#contact" className="btn-secondary">Contact Me</a>
             </div>
           </div>
 
           {/* Right — highlights grid */}
-          <div className="reveal-right" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-            {HIGHLIGHTS.map((item, i) => (
-              <div key={i} className="glass-card card-glow" style={{
-                borderRadius: 18, padding: "24px 20px", textAlign: "center", transitionDelay: `${i * 0.08}s`,
-              }}>
-                <div style={{ fontSize: 32, marginBottom: 10 }}>{item.icon}</div>
-                <div style={{ fontFamily: "var(--font-heading)", fontSize: 18, fontWeight: 700, color: "var(--text-1)", marginBottom: 6 }}>
-                  {item.label}
+          <div className="reveal-right">
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+              {HIGHLIGHTS.map((item, i) => (
+                <div key={i} className="card card-lift" style={{
+                  borderRadius: 10, padding: "28px 22px",
+                  transitionDelay: `${i * 0.08}s`,
+                }}>
+                  <div style={{
+                    fontFamily: "var(--font-heading)", fontSize: 20, fontWeight: 700,
+                    color: "var(--text-1)", marginBottom: 8,
+                  }}>
+                    {item.label}
+                  </div>
+                  <div style={{ color: "var(--text-3)", fontSize: 12, lineHeight: 1.5 }}>{item.sub}</div>
                 </div>
-                <div style={{ color: "var(--text-3)", fontSize: 11, lineHeight: 1.4 }}>{item.sub}</div>
-              </div>
-            ))}
+              ))}
+            </div>
 
-            <div className="glass-card" style={{
-              borderRadius: 18, padding: "20px", gridColumn: "1 / -1",
-              display: "flex", alignItems: "center", gap: 16,
-              borderLeft: "3px solid var(--accent)",
+            {/* Quote card */}
+            <div className="card" style={{
+              borderRadius: 10, padding: "22px 24px",
+              borderLeft: "4px solid var(--accent)",
             }}>
-              <span style={{ fontSize: 26 }}>📐</span>
-              <div>
-                <div style={{ color: "var(--accent)", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", marginBottom: 4 }}>
-                  BUILT ON BLUEPRINTS
-                </div>
-                <div style={{ color: "var(--text-2)", fontSize: 13, lineHeight: 1.5 }}>
-                  Civil Diploma → B.Eng. → M.Eng. → $100M+ PM. Every step was by design.
-                </div>
+              <div style={{ color: "var(--accent)", fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", marginBottom: 8 }}>
+                BUILT ON BLUEPRINTS
+              </div>
+              <div style={{ color: "var(--text-2)", fontSize: 13, lineHeight: 1.6 }}>
+                Civil Diploma → B.Eng. → M.Eng. → Solar EPC → BESS → Microgrid → $100M+ PM. Every step was by design.
               </div>
             </div>
           </div>

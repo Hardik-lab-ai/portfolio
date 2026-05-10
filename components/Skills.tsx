@@ -4,39 +4,33 @@ import { motion, useInView } from "framer-motion";
 
 const CATEGORIES = [
   {
-    icon: "☀️", label: "Solar & Energy Systems", color: "#F59E0B",
-    bgColor: "rgba(245,158,11,0.08)", borderColor: "rgba(245,158,11,0.25)",
-    skills: [
-      "SolarEdge Systems", "EPC Lifecycle Mgmt", "Commissioning",
-      "System Startup", "Helioscope", "PV System Design",
-    ],
+    label: "Solar & Energy Systems",
+    skills: ["Solar EPC", "BESS (Battery Storage)", "Microgrid Systems", "SolarEdge", "Commissioning & Startup", "PV System Design", "Helioscope", "Grid Interconnection"],
+    accent: true,
   },
   {
-    icon: "📊", label: "Project Management Tools", color: "#C9A84C",
-    bgColor: "rgba(201,168,76,0.08)", borderColor: "rgba(201,168,76,0.25)",
+    label: "Project Management Tools",
     skills: ["Primavera P6", "MS Project", "Procore", "Bluebeam", "Smartsheets"],
+    accent: false,
   },
   {
-    icon: "🏛️", label: "BIM & Design", color: "#10B981",
-    bgColor: "rgba(16,185,129,0.08)", borderColor: "rgba(16,185,129,0.25)",
+    label: "BIM & Design",
     skills: ["AutoCAD", "Revit (Arch/Struct/MEP)", "SketchUp", "Helioscope", "BIM Coordination"],
+    accent: false,
   },
   {
-    icon: "⚙️", label: "Engineering Expertise", color: "#94A3B8",
-    bgColor: "rgba(148,163,184,0.08)", borderColor: "rgba(148,163,184,0.25)",
-    skills: [
-      "Civil Engineering", "Risk Assessment", "Budget & Cost Control",
-      "Value Engineering", "Procurement Mgmt", "QA/QC Management",
-    ],
+    label: "Engineering Expertise",
+    skills: ["Civil Engineering", "Risk Assessment", "Budget & Cost Control", "Value Engineering", "Procurement Mgmt", "QA/QC Management"],
+    accent: true,
   },
 ];
 
 const CERTS = [
-  { name: "OSHA 30",             icon: "🦺", color: "#F59E0B" },
-  { name: "OSHA 10",             icon: "⛑️",  color: "#F59E0B" },
-  { name: "CMIT",                icon: "📜", color: "#C9A84C" },
-  { name: "Procore Certified",   icon: "🏗️", color: "#10B981" },
-  { name: "SolarEdge Certified", icon: "☀️", color: "#10B981" },
+  { name: "OSHA 30"           },
+  { name: "OSHA 10"           },
+  { name: "CMIT"              },
+  { name: "Procore Certified" },
+  { name: "SolarEdge Certified" },
 ];
 
 type Category = (typeof CATEGORIES)[number];
@@ -48,50 +42,37 @@ function CategoryCard({ cat, index }: { cat: Category; index: number }) {
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 32 }}
+      initial={{ opacity: 0, y: 28 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.55, delay: index * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
-      className="glass-card hover-lift"
-      style={{ borderRadius: 20, padding: "28px 26px", borderTop: `3px solid ${cat.color}60` }}
+      transition={{ duration: 0.5, delay: index * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+      className="card card-lift"
+      style={{ borderRadius: 10, padding: "28px 26px", borderTop: cat.accent ? "3px solid var(--accent)" : "3px solid var(--border-strong)" }}
     >
-      {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-        <div style={{
-          width: 44, height: 44, borderRadius: 12, flexShrink: 0,
-          background: cat.bgColor, border: `1px solid ${cat.borderColor}`,
-          display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22,
-        }}>
-          {cat.icon}
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ color: "var(--text-3)", fontSize: 9, fontWeight: 700, letterSpacing: "0.16em", marginBottom: 6 }}>
+          EXPERTISE
         </div>
-        <div>
-          <div style={{ color: cat.color, fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", marginBottom: 3 }}>
-            EXPERTISE
-          </div>
-          <div style={{ color: "var(--text-1)", fontSize: 14, fontWeight: 700, fontFamily: "var(--font-heading)" }}>
-            {cat.label}
-          </div>
+        <div style={{ color: "var(--text-1)", fontSize: 16, fontWeight: 700, fontFamily: "var(--font-heading)" }}>
+          {cat.label}
         </div>
       </div>
 
-      {/* Skill chips */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
         {cat.skills.map((skill, si) => (
           <motion.span
             key={skill}
-            initial={{ opacity: 0, scale: 0.85 }}
+            initial={{ opacity: 0, scale: 0.88 }}
             animate={inView ? { opacity: 1, scale: 1 } : {}}
-            transition={{ duration: 0.3, delay: index * 0.1 + si * 0.07 + 0.25 }}
+            transition={{ duration: 0.28, delay: index * 0.1 + si * 0.06 + 0.2 }}
+            className="skill-chip"
             style={{
               display: "inline-block",
-              padding: "7px 14px",
-              borderRadius: 999,
-              fontSize: 12,
-              fontWeight: 600,
-              color: cat.color,
-              background: cat.bgColor,
-              border: `1px solid ${cat.borderColor}`,
-              letterSpacing: "0.01em",
-              lineHeight: 1.2,
+              padding: "6px 13px",
+              borderRadius: 4,
+              fontSize: 12, fontWeight: 600,
+              color: cat.accent ? "var(--accent)" : "var(--text-2)",
+              background: cat.accent ? "var(--accent-light)" : "var(--chip-bg)",
+              border: `1px solid ${cat.accent ? "rgba(232,96,10,0.20)" : "var(--chip-border)"}`,
             }}
           >
             {skill}
@@ -110,12 +91,9 @@ export default function Skills() {
   const certsInView = useInView(certsRef, { once: true, margin: "-50px" });
 
   return (
-    <section id="skills" className="section-bg-a-l" style={{ padding: "100px 0", position: "relative" }}>
-      <div className="tape-stripe" style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, opacity: 0.5 }} />
+    <section id="skills" style={{ background: "var(--bg-page)", padding: "100px 0" }}>
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 32px" }}>
 
-      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px" }}>
-
-        {/* Heading */}
         <motion.div
           ref={headerRef}
           initial={{ opacity: 0, y: 20 }}
@@ -123,28 +101,16 @@ export default function Skills() {
           transition={{ duration: 0.5 }}
           style={{ textAlign: "center", marginBottom: 64 }}
         >
-          <div className="section-label" style={{ marginBottom: 12 }}>Technical Arsenal</div>
+          <span className="section-label" style={{ marginBottom: 14 }}>Technical Arsenal</span>
           <h2 style={{
-            fontFamily: "var(--font-heading)", fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)",
+            fontFamily: "var(--font-heading)", fontSize: "clamp(1.8rem, 3.5vw, 2.6rem)",
             fontWeight: 700, color: "var(--text-1)", letterSpacing: "-0.02em",
           }}>
-            Tools of the{" "}
-            <span style={{
-              backgroundImage: "linear-gradient(135deg, var(--accent), var(--accent-2))",
-              WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent",
-            }}>
-              Trade
-            </span>
+            Tools of the Trade
           </h2>
         </motion.div>
 
-        {/* Category cards */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-          gap: 24,
-          marginBottom: 64,
-        }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 22, marginBottom: 64 }}>
           {CATEGORIES.map((cat, i) => (
             <CategoryCard key={cat.label} cat={cat} index={i} />
           ))}
@@ -155,32 +121,33 @@ export default function Skills() {
           ref={certsRef}
           initial={{ opacity: 0, y: 20 }}
           animate={certsInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5, delay: 0.15 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
         >
           <div style={{ textAlign: "center", marginBottom: 28 }}>
-            <div className="section-label">Certifications &amp; Credentials</div>
+            <span className="section-label">Certifications &amp; Credentials</span>
           </div>
+
           <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 14 }}>
             {CERTS.map((cert, i) => (
               <motion.div
                 key={cert.name}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={certsInView ? { opacity: 1, scale: 1 } : {}}
-                transition={{ duration: 0.35, delay: i * 0.08 + 0.25 }}
-                className="skill-badge glass-card"
+                initial={{ opacity: 0, y: 14 }}
+                animate={certsInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.35, delay: i * 0.08 + 0.2 }}
+                className="card card-lift"
                 style={{
-                  display: "flex", alignItems: "center", gap: 10,
-                  padding: "14px 22px", borderRadius: 14, cursor: "default",
-                  borderLeft: `3px solid ${cert.color}`,
+                  display: "flex", alignItems: "center", gap: 14,
+                  padding: "16px 24px", borderRadius: 10,
+                  borderLeft: "4px solid var(--accent)",
+                  cursor: "default",
                 }}
               >
-                <span style={{ fontSize: 20 }}>{cert.icon}</span>
                 <div>
                   <div style={{ color: "var(--text-1)", fontSize: 14, fontWeight: 700, fontFamily: "var(--font-heading)" }}>
                     {cert.name}
                   </div>
-                  <div style={{ color: cert.color, fontSize: 10, fontWeight: 600, letterSpacing: "0.08em" }}>
-                    CERTIFIED ✓
+                  <div style={{ color: "var(--accent)", fontSize: 10, fontWeight: 700, letterSpacing: "0.10em", marginTop: 2 }}>
+                    CERTIFIED
                   </div>
                 </div>
               </motion.div>
@@ -189,8 +156,6 @@ export default function Skills() {
         </motion.div>
 
       </div>
-
-      <div className="tape-stripe" style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 3, opacity: 0.5 }} />
     </section>
   );
 }
