@@ -11,6 +11,14 @@ const CONTACT_METHODS = [
     accent: true,
   },
   {
+    label: "LINKEDIN",
+    value: "linkedin.com/in/hardiknakrani",
+    sub: "Connect professionally",
+    cta: "View profile →",
+    href: "https://www.linkedin.com/in/hardiknakrani",
+    accent: false,
+  },
+  {
     label: "LOCATION",
     value: "Jersey City, NJ",
     sub: "New York Metro Area · Remote Ready",

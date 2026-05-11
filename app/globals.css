@@ -164,7 +164,8 @@ body { background: var(--bg-page); color: var(--text-1); }
 .hero-grid {
   display: grid;
   grid-template-columns: 55fr 45fr;
-  min-height: 100vh;
+  min-height: calc(100vh - 72px);
+  margin-top: 72px;
 }
 @media (max-width: 900px) {
   .hero-grid { grid-template-columns: 1fr; }

@@ -25,12 +25,12 @@ export default function Footer() {
               CONTACT
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {[
-                { label: "Jersey City, NJ" },
-                { label: "Hardiknakrani3695@gmail.com" },
-              ].map(item => (
-                <span key={item.label} style={{ color: "var(--footer-muted)", fontSize: 13 }}>{item.label}</span>
-              ))}
+              <span style={{ color: "var(--footer-muted)", fontSize: 13 }}>Jersey City, NJ</span>
+              <span style={{ color: "var(--footer-muted)", fontSize: 13 }}>Hardiknakrani3695@gmail.com</span>
+              <a href="https://www.linkedin.com/in/hardiknakrani" target="_blank" rel="noopener noreferrer"
+                style={{ color: "var(--footer-muted)", fontSize: 13, textDecoration: "none" }}>
+                linkedin.com/in/hardiknakrani
+              </a>
             </div>
           </div>
 

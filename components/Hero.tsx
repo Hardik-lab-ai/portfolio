@@ -90,7 +90,7 @@ export default function Hero() {
       {/* LEFT — text content */}
       <div style={{
         display: "flex", flexDirection: "column", justifyContent: "center",
-        padding: "120px 10% 80px 10%",
+        padding: "60px 10% 80px 10%",
         background: "var(--bg-page)",
         position: "relative",
         overflow: "hidden",
@@ -144,6 +144,7 @@ export default function Hero() {
           {[
             { label: "Location", value: "Jersey City, NJ" },
             { label: "Email",    value: "Hardiknakrani3695@gmail.com" },
+            { label: "LinkedIn", value: "linkedin.com/in/hardiknakrani" },
           ].map(({ label, value }) => (
             <div key={label} style={{ display: "flex", alignItems: "center", gap: 10 }}>
               <span style={{ color: "var(--text-3)", fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", width: 56, flexShrink: 0 }}>{label.toUpperCase()}</span>
@@ -179,7 +180,7 @@ export default function Hero() {
       <div ref={rightRef} style={{
         background: "var(--bg-alt)",
         display: "flex", flexDirection: "column", justifyContent: "center",
-        padding: "120px 10% 80px",
+        padding: "60px 10% 80px",
         position: "relative", overflow: "hidden",
         borderLeft: "1px solid var(--border)",
       }}>
