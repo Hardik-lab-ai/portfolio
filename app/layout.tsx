@@ -28,6 +28,11 @@ export const metadata: Metadata = {
     "Construction Engineering",
     "Jersey City",
   ],
+  icons: {
+    icon: "/icon.svg",
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
 };
 
 export default function RootLayout({
