@@ -2,7 +2,9 @@
 import { useState, useEffect } from "react";
 import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps";
 
-const GEO_URL = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
+// World landmasses (includes Caribbean islands) + US state borders overlaid
+const WORLD_GEO = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json";
+const US_GEO    = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
 
 type Category = "canopy" | "rooftop" | "landfill" | "bess";
 
@@ -14,7 +16,6 @@ interface Project {
   type: string;
   category: Category;
   description: string;
-  offMap?: boolean;
   multiSite?: boolean;
 }
 
@@ -123,7 +124,6 @@ const PROJECTS: Project[] = [
     type: "BESS & Microgrid",
     category: "bess",
     description: "Island microgrid with battery energy storage for an electric cooperative. Delivered full grid independence and resiliency for a remote off-grid community.",
-    offMap: true,
   },
 ];
 
@@ -143,8 +143,6 @@ export default function Projects() {
   useEffect(() => setMounted(true), []);
 
   const activeProject = PROJECTS.find(p => p.name === active);
-  const mapProjects   = PROJECTS.filter(p => !p.offMap);
-  const offMapProject = PROJECTS.find(p => p.offMap);
 
   return (
     <section id="projects" style={{ background: "var(--bg-page)", padding: "100px 0" }}>
@@ -188,16 +186,38 @@ export default function Projects() {
           }}>
             {mounted ? (
               <ComposableMap
-                projection="geoAlbersUsa"
+                projection="geoMercator"
+                projectionConfig={{ center: [-92, 28], scale: 650 }}
+                height={500}
                 style={{ width: "100%", height: "auto", display: "block" }}
               >
-                <Geographies geography={GEO_URL}>
+                {/* World landmasses — fills Caribbean islands */}
+                <Geographies geography={WORLD_GEO}>
                   {({ geographies }) =>
                     geographies.map(geo => (
                       <Geography
                         key={geo.rsmKey}
                         geography={geo}
                         fill="var(--bg-alt)"
+                        stroke="var(--border-strong)"
+                        strokeWidth={0.3}
+                        style={{
+                          default: { outline: "none" },
+                          hover:   { outline: "none" },
+                          pressed: { outline: "none" },
+                        }}
+                      />
+                    ))
+                  }
+                </Geographies>
+                {/* US state borders on top */}
+                <Geographies geography={US_GEO}>
+                  {({ geographies }) =>
+                    geographies.map(geo => (
+                      <Geography
+                        key={geo.rsmKey}
+                        geography={geo}
+                        fill="transparent"
                         stroke="var(--border)"
                         strokeWidth={0.5}
                         style={{
@@ -210,7 +230,7 @@ export default function Projects() {
                   }
                 </Geographies>
 
-                {mapProjects.map(project => {
+                {PROJECTS.map(project => {
                   const color    = CAT_COLOR[project.category];
                   const isActive = active === project.name;
                   return (
@@ -277,7 +297,7 @@ export default function Projects() {
               display: "flex", flexWrap: "wrap", gap: 20, alignItems: "center",
             }}>
               <span style={{ color: "var(--text-3)", fontSize: 9, fontWeight: 700, letterSpacing: "0.14em" }}>LEGEND</span>
-              {(["canopy", "rooftop", "landfill"] as Category[]).map(cat => (
+              {(["canopy", "rooftop", "landfill", "bess"] as Category[]).map(cat => (
                 <div key={cat} style={{ display: "flex", alignItems: "center", gap: 6 }}>
                   <div style={{ width: 8, height: 8, borderRadius: "50%", background: CAT_COLOR[cat] }} />
                   <span style={{ color: "var(--text-3)", fontSize: 11 }}>{CAT_LABEL[cat]}</span>
@@ -365,11 +385,11 @@ export default function Projects() {
             }}>
               <div style={{ padding: "14px 18px 10px", borderBottom: "1px solid var(--border)" }}>
                 <span style={{ color: "var(--text-3)", fontSize: 9, fontWeight: 700, letterSpacing: "0.14em" }}>
-                  {mapProjects.length} PROJECTS ON MAP
+                  {PROJECTS.length} PROJECTS ON MAP
                 </span>
               </div>
               <div style={{ maxHeight: 320, overflowY: "auto" }}>
-                {mapProjects.map(p => {
+                {PROJECTS.map(p => {
                   const isActive = active === p.name;
                   return (
                     <div
@@ -411,63 +431,6 @@ export default function Projects() {
             </div>
           </div>
         </div>
-
-        {/* ── Caribbean project (off-map) ──────────────────── */}
-        {offMapProject && (
-          <div style={{
-            marginTop: 24,
-            background: "var(--bg-card)",
-            border: "1px solid var(--border)",
-            borderLeft: `4px solid ${CAT_COLOR.bess}`,
-            borderRadius: 12,
-            padding: "22px 26px",
-            display: "flex", alignItems: "flex-start", gap: 20,
-          }}>
-            <div style={{
-              width: 42, height: 42, borderRadius: "50%",
-              background: `${CAT_COLOR.bess}18`,
-              border: `1.5px solid ${CAT_COLOR.bess}40`,
-              display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-            }}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={CAT_COLOR.bess} strokeWidth="2" strokeLinecap="round">
-                <circle cx="12" cy="12" r="10"/>
-                <line x1="2" y1="12" x2="22" y2="12"/>
-                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-              </svg>
-            </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
-                <span style={{
-                  background: `${CAT_COLOR.bess}18`, color: CAT_COLOR.bess,
-                  fontSize: 9, fontWeight: 800, letterSpacing: "0.14em",
-                  padding: "4px 10px", borderRadius: 4,
-                }}>
-                  BESS & MICROGRID
-                </span>
-                <span style={{
-                  background: "var(--chip-bg)", border: "1px solid var(--chip-border)",
-                  color: "var(--text-3)", fontSize: 9, fontWeight: 700, letterSpacing: "0.10em",
-                  padding: "4px 10px", borderRadius: 4,
-                }}>
-                  INTERNATIONAL · OFF MAP
-                </span>
-              </div>
-              <h3 style={{
-                fontFamily: "var(--font-heading)", fontSize: 16, fontWeight: 700,
-                color: "var(--text-1)", marginBottom: 4,
-              }}>
-                {offMapProject.name}
-              </h3>
-              <div style={{ display: "flex", gap: 16, marginBottom: 10 }}>
-                <span style={{ color: "var(--text-3)", fontSize: 11 }}>{offMapProject.location}</span>
-                <span style={{ color: CAT_COLOR.bess, fontSize: 11, fontWeight: 700 }}>{offMapProject.size}</span>
-              </div>
-              <p style={{ color: "var(--text-2)", fontSize: 13, lineHeight: 1.7, margin: 0, maxWidth: 760 }}>
-                {offMapProject.description}
-              </p>
-            </div>
-          </div>
-        )}
 
         {/* Footer note */}
         <div style={{ marginTop: 32, textAlign: "center" }}>
