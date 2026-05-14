@@ -495,7 +495,7 @@ export default function Projects() {
                       <text
                         textAnchor="middle" y="0.38em"
                         fill="#ffffff"
-                        style={{ fontSize: count > 9 ? 4.5 : 5.5, fontWeight: 800, pointerEvents: "none", userSelect: "none" }}
+                        style={{ fontSize: count > 9 ? 2.25 : 2.75, fontWeight: 800, pointerEvents: "none", userSelect: "none" }}
                       >
                         {count}
                       </text>
