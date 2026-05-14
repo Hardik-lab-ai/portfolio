@@ -159,7 +159,7 @@ const PROJECTS: Project[] = [
   },
   {
     name: "Caribbean Microgrid",
-    coords: [-62.0, 17.0],
+    coords: [-64.6, 18.4],
     location: "Caribbean",
     size: "1.0 MW / 4 MWh",
     type: "BESS & Microgrid",
