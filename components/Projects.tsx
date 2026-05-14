@@ -1,18 +1,17 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
+import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps";
+
+const WORLD_GEO = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json";
+const US_GEO    = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
 
 const TOOLTIP_W = 288;
-
-// ESRI tile layers — no API key required
-const TILE_SATELLITE = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
-const TILE_TOPO      = "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}";
-const TILE_ATTR      = "Tiles &copy; <a href='https://www.esri.com'>Esri</a>";
 
 type Category = "canopy" | "rooftop" | "landfill" | "bess";
 
 interface Project {
   name: string;
-  coords: [number, number]; // [lng, lat]
+  coords: [number, number];
   location: string;
   size: string;
   type: string;
@@ -169,44 +168,91 @@ const PROJECTS: Project[] = [
   },
 ];
 
-interface TooltipState { project: Project; x: number; y: number; }
+// State abbreviations at approximate centroids [lng, lat]
+const STATE_LABELS: { abbr: string; coords: [number, number] }[] = [
+  { abbr: "ME", coords: [-69.2, 45.4] },
+  { abbr: "NH", coords: [-71.5, 43.7] },
+  { abbr: "VT", coords: [-72.6, 44.0] },
+  { abbr: "MA", coords: [-71.8, 42.2] },
+  { abbr: "RI", coords: [-71.4, 41.6] },
+  { abbr: "CT", coords: [-72.7, 41.6] },
+  { abbr: "NY", coords: [-75.5, 43.0] },
+  { abbr: "NJ", coords: [-74.4, 40.1] },
+  { abbr: "PA", coords: [-77.2, 40.9] },
+  { abbr: "DE", coords: [-75.5, 38.9] },
+  { abbr: "MD", coords: [-76.8, 38.8] },
+  { abbr: "VA", coords: [-78.7, 37.5] },
+  { abbr: "WV", coords: [-80.6, 38.6] },
+  { abbr: "NC", coords: [-79.4, 35.6] },
+  { abbr: "SC", coords: [-80.9, 33.8] },
+  { abbr: "GA", coords: [-83.4, 32.7] },
+  { abbr: "FL", coords: [-81.3, 27.8] },
+  { abbr: "AL", coords: [-86.7, 32.7] },
+  { abbr: "MS", coords: [-89.6, 32.7] },
+  { abbr: "TN", coords: [-86.3, 35.9] },
+  { abbr: "KY", coords: [-84.3, 37.5] },
+  { abbr: "OH", coords: [-82.8, 40.4] },
+  { abbr: "MI", coords: [-85.4, 44.3] },
+  { abbr: "IN", coords: [-86.3, 40.3] },
+  { abbr: "IL", coords: [-89.2, 40.0] },
+  { abbr: "WI", coords: [-89.6, 44.6] },
+  { abbr: "MN", coords: [-94.3, 46.4] },
+  { abbr: "IA", coords: [-93.5, 42.0] },
+  { abbr: "MO", coords: [-92.3, 38.5] },
+  { abbr: "AR", coords: [-92.4, 34.8] },
+  { abbr: "LA", coords: [-91.8, 30.9] },
+  { abbr: "TX", coords: [-99.3, 31.5] },
+  { abbr: "OK", coords: [-97.5, 35.5] },
+  { abbr: "KS", coords: [-98.4, 38.5] },
+  { abbr: "NE", coords: [-99.9, 41.5] },
+  { abbr: "SD", coords: [-100.2, 44.4] },
+  { abbr: "ND", coords: [-100.5, 47.5] },
+  { abbr: "MT", coords: [-110.4, 47.0] },
+  { abbr: "WY", coords: [-107.6, 43.0] },
+  { abbr: "CO", coords: [-105.5, 39.1] },
+  { abbr: "NM", coords: [-106.2, 34.5] },
+  { abbr: "AZ", coords: [-111.6, 34.3] },
+  { abbr: "UT", coords: [-111.1, 39.4] },
+  { abbr: "NV", coords: [-116.7, 39.3] },
+  { abbr: "CA", coords: [-119.7, 37.3] },
+  { abbr: "OR", coords: [-120.6, 44.0] },
+  { abbr: "WA", coords: [-120.5, 47.5] },
+  { abbr: "ID", coords: [-114.5, 44.4] },
+];
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnyComp = React.ComponentType<any>;
-interface MapLib { MapContainer: AnyComp; TileLayer: AnyComp; CircleMarker: AnyComp; }
+// Country labels visible in the map viewport [lng, lat]
+const COUNTRY_LABELS: { name: string; coords: [number, number] }[] = [
+  { name: "CANADA",  coords: [-96.0, 57.0] },
+  { name: "MEXICO",  coords: [-102.5, 23.5] },
+  { name: "CUBA",    coords: [-79.5, 21.8] },
+  { name: "BAHAMAS", coords: [-77.4, 25.0] },
+];
+
+interface TooltipState {
+  project: Project;
+  x: number;
+  y: number;
+}
 
 export default function Projects() {
-  const [tooltip, setTooltip] = useState<TooltipState | null>(null);
-  const [winW,    setWinW]    = useState(1280);
-  const [mapLib,  setMapLib]  = useState<MapLib | null>(null);
-  const mapRef = useRef<HTMLDivElement>(null);
+  const [tooltip,  setTooltip]  = useState<TooltipState | null>(null);
+  const [mounted,  setMounted]  = useState(false);
+  const [winW,     setWinW]     = useState(1280);
 
   useEffect(() => {
+    setMounted(true);
     setWinW(window.innerWidth);
     const onResize = () => setWinW(window.innerWidth);
     window.addEventListener("resize", onResize);
-
-    // Dynamically import Leaflet + CSS to avoid SSR issues
-    Promise.all([
-      import("leaflet/dist/leaflet.css" as string),
-      import("react-leaflet"),
-    ]).then(([, rl]) => {
-      setMapLib({
-        MapContainer:  rl.MapContainer,
-        TileLayer:     rl.TileLayer,
-        CircleMarker:  rl.CircleMarker,
-      });
-    });
-
     return () => window.removeEventListener("resize", onResize);
   }, []);
+
+  const active = tooltip?.project.name ?? null;
 
   const ttLeft = tooltip
     ? Math.max(8, Math.min(tooltip.x - TOOLTIP_W / 2, winW - TOOLTIP_W - 8))
     : 0;
-  const ttTop = tooltip ? tooltip.y + 18 : 0;
-
-  const { MapContainer, TileLayer, CircleMarker } = mapLib ?? {};
+  const ttTop  = tooltip ? tooltip.y + 18 : 0;
 
   return (
     <section id="projects" style={{ background: "var(--bg-page)", padding: "100px 0" }}>
@@ -227,84 +273,178 @@ export default function Projects() {
             <a href="https://www.coredevusa.com" target="_blank" rel="noopener noreferrer"
               style={{ color: "var(--accent)", textDecoration: "none", fontWeight: 600 }}>
               Core Development Group (Coredev USA)
-            </a>.
+            </a>
+            . Hover any pin to explore project details.
           </p>
         </div>
 
-        {/* Map */}
-        <div
-          ref={mapRef}
-          style={{
-            borderRadius: 16, overflow: "hidden",
-            border: "1px solid var(--border)",
-            boxShadow: "var(--shadow-md)",
-            height: 540,
-            background: "#0d1f2d",
-          }}
-        >
-          {MapContainer && TileLayer && CircleMarker ? (
-            <MapContainer
-              center={[32, -90] as [number, number]}
-              zoom={4}
-              scrollWheelZoom={false}
-              style={{ height: "100%", width: "100%" }}
-              attributionControl={true}
+        {/* Full-width map */}
+        <div style={{
+          background: "var(--bg-card)",
+          border: "1px solid var(--border)",
+          borderRadius: 16,
+          overflow: "hidden",
+          boxShadow: "var(--shadow-sm)",
+        }}>
+          {mounted ? (
+            <ComposableMap
+              projection="geoMercator"
+              projectionConfig={{ center: [-92, 28], scale: 650 }}
+              height={500}
+              style={{ width: "100%", height: "auto", display: "block" }}
             >
-              {/* Satellite base */}
-              <TileLayer url={TILE_SATELLITE} attribution={TILE_ATTR} maxZoom={19} />
-              {/* Topo / reference overlay */}
-              <TileLayer url={TILE_TOPO} maxZoom={19} opacity={0.75} />
+              {/* World landmasses */}
+              <Geographies geography={WORLD_GEO}>
+                {({ geographies }) =>
+                  geographies.map(geo => (
+                    <Geography
+                      key={geo.rsmKey}
+                      geography={geo}
+                      fill="var(--bg-alt)"
+                      stroke="var(--border-strong)"
+                      strokeWidth={0.3}
+                      style={{
+                        default: { outline: "none" },
+                        hover:   { outline: "none" },
+                        pressed: { outline: "none" },
+                      }}
+                    />
+                  ))
+                }
+              </Geographies>
 
+              {/* US state borders */}
+              <Geographies geography={US_GEO}>
+                {({ geographies }) =>
+                  geographies.map(geo => (
+                    <Geography
+                      key={geo.rsmKey}
+                      geography={geo}
+                      fill="transparent"
+                      stroke="var(--border)"
+                      strokeWidth={0.5}
+                      style={{
+                        default: { outline: "none" },
+                        hover:   { outline: "none" },
+                        pressed: { outline: "none" },
+                      }}
+                    />
+                  ))
+                }
+              </Geographies>
+
+              {/* Country labels */}
+              {COUNTRY_LABELS.map(({ name, coords }) => (
+                <Marker key={name} coordinates={coords}>
+                  <text
+                    textAnchor="middle"
+                    fill="var(--text-2)"
+                    style={{
+                      fontSize: 7,
+                      fontWeight: 700,
+                      letterSpacing: "0.14em",
+                      opacity: 0.45,
+                      pointerEvents: "none",
+                      userSelect: "none",
+                    }}
+                  >
+                    {name}
+                  </text>
+                </Marker>
+              ))}
+
+              {/* State abbreviation labels */}
+              {STATE_LABELS.map(({ abbr, coords }) => (
+                <Marker key={abbr} coordinates={coords}>
+                  <text
+                    textAnchor="middle"
+                    fill="var(--text-3)"
+                    style={{
+                      fontSize: 5.5,
+                      fontWeight: 600,
+                      letterSpacing: "0.04em",
+                      opacity: 0.6,
+                      pointerEvents: "none",
+                      userSelect: "none",
+                    }}
+                  >
+                    {abbr}
+                  </text>
+                </Marker>
+              ))}
+
+              {/* Project pins — rendered last to stay on top */}
               {PROJECTS.map(project => {
                 const color    = CAT_COLOR[project.category];
-                const isActive = tooltip?.project.name === project.name;
+                const isActive = active === project.name;
                 return (
-                  <CircleMarker
+                  <Marker
                     key={project.name}
-                    center={[project.coords[1], project.coords[0]] as [number, number]}
-                    radius={isActive ? 8 : 5}
-                    pathOptions={{
-                      fillColor: color,
-                      color: "#FFFFFF",
-                      weight: isActive ? 2 : 1.5,
-                      fillOpacity: 1,
-                      opacity: 1,
-                    }}
-                    eventHandlers={{
-                      mouseover: (e: { originalEvent: MouseEvent }) =>
-                        setTooltip({ project, x: e.originalEvent.clientX, y: e.originalEvent.clientY }),
-                      mousemove: (e: { originalEvent: MouseEvent }) =>
-                        setTooltip(t => t?.project.name === project.name
-                          ? { ...t, x: e.originalEvent.clientX, y: e.originalEvent.clientY }
-                          : t),
-                      mouseout: () => setTooltip(null),
-                    }}
-                  />
+                    coordinates={project.coords}
+                    onMouseEnter={(e) => setTooltip({ project, x: (e as unknown as MouseEvent).clientX, y: (e as unknown as MouseEvent).clientY })}
+                    onMouseMove={(e)  => setTooltip(t => t?.project.name === project.name ? { ...t, x: (e as unknown as MouseEvent).clientX, y: (e as unknown as MouseEvent).clientY } : t)}
+                    onMouseLeave={()  => setTooltip(null)}
+                  >
+                    {/* Outer glow */}
+                    <circle r={isActive ? 11 : 7} fill={color}
+                      opacity={isActive ? 0.18 : 0.10}
+                      style={{ transition: "r 0.22s ease, opacity 0.22s ease" }}
+                    />
+                    {/* Mid ring */}
+                    <circle r={isActive ? 7 : 4.5} fill={color}
+                      opacity={isActive ? 0.30 : 0.18}
+                      style={{ transition: "r 0.22s ease" }}
+                    />
+                    {/* Core dot */}
+                    <circle
+                      r={isActive ? 3.5 : 2.5}
+                      fill={color}
+                      stroke="#FFFFFF"
+                      strokeWidth={isActive ? 1.5 : 1}
+                      style={{
+                        cursor: "pointer",
+                        transition: "r 0.18s ease",
+                        filter: isActive ? `drop-shadow(0 0 3px ${color})` : "none",
+                      }}
+                    />
+                    {/* Site count */}
+                    {project.sites && (
+                      <text
+                        y={isActive ? -13 : -9}
+                        textAnchor="middle"
+                        fill={color}
+                        style={{ fontSize: 6, fontWeight: 700, letterSpacing: "0.10em", pointerEvents: "none" }}
+                      >
+                        {project.sites} SITES
+                      </text>
+                    )}
+                  </Marker>
                 );
               })}
-            </MapContainer>
+            </ComposableMap>
           ) : (
-            <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 13 }}>Loading satellite map…</span>
+            <div style={{ height: 480, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ color: "var(--text-3)", fontSize: 13 }}>Loading map…</span>
             </div>
           )}
-        </div>
 
-        {/* Legend */}
-        <div style={{
-          marginTop: 16, display: "flex", flexWrap: "wrap", gap: 20,
-          padding: "0 4px",
-        }}>
-          {(["canopy", "rooftop", "landfill", "bess"] as Category[]).map(cat => (
-            <div key={cat} style={{ display: "flex", alignItems: "center", gap: 7 }}>
-              <div style={{ width: 9, height: 9, borderRadius: "50%", background: CAT_COLOR[cat] }} />
-              <span style={{ color: "var(--text-3)", fontSize: 11 }}>{CAT_LABEL[cat]}</span>
-            </div>
-          ))}
+          {/* Legend */}
+          <div style={{
+            padding: "13px 24px",
+            borderTop: "1px solid var(--border)",
+            display: "flex", flexWrap: "wrap", gap: 24, alignItems: "center",
+          }}>
+            {(["canopy", "rooftop", "landfill", "bess"] as Category[]).map(cat => (
+              <div key={cat} style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                <div style={{ width: 9, height: 9, borderRadius: "50%", background: CAT_COLOR[cat] }} />
+                <span style={{ color: "var(--text-3)", fontSize: 11 }}>{CAT_LABEL[cat]}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Footer */}
-        <div style={{ marginTop: 24, textAlign: "center" }}>
+        <div style={{ marginTop: 28, textAlign: "center" }}>
           <p style={{ color: "var(--text-3)", fontSize: 12 }}>
             All projects publicly listed on{" "}
             <a href="https://www.coredevusa.com/company/projects/" target="_blank" rel="noopener noreferrer"
@@ -318,16 +458,18 @@ export default function Projects() {
 
       {/* Floating tooltip */}
       {tooltip && (
-        <div style={{
-          position: "fixed",
-          left: ttLeft,
-          top: ttTop,
-          width: TOOLTIP_W,
-          zIndex: 9999,
-          pointerEvents: "none",
-          animation: "fadeUp 0.15s ease-out forwards",
-        }}>
-          {/* Arrow */}
+        <div
+          style={{
+            position: "fixed",
+            left:  ttLeft,
+            top:   ttTop,
+            width: TOOLTIP_W,
+            zIndex: 9999,
+            pointerEvents: "none",
+            animation: "fadeUp 0.15s ease-out forwards",
+          }}
+        >
+          {/* Arrow caret */}
           <div style={{
             position: "absolute",
             top: -6, left: tooltip.x - ttLeft - 6,
@@ -338,6 +480,7 @@ export default function Projects() {
             transform: "rotate(45deg)",
             borderRadius: 2,
           }} />
+
           {/* Card */}
           <div style={{
             background: "var(--bg-card)",
