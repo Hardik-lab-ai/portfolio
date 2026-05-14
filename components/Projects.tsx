@@ -481,13 +481,13 @@ export default function Projects() {
                     >
                       {/* Outer glow */}
                       <circle
-                        r={isHovered ? 17 : 13}
+                        r={isHovered ? 8.5 : 6.5}
                         fill="#2B55C4" opacity={isHovered ? 0.22 : 0.13}
                         style={{ transition: "r 0.18s ease, opacity 0.18s ease" }}
                       />
                       {/* Fill circle */}
                       <circle
-                        r={isHovered ? 12 : 9}
+                        r={isHovered ? 6 : 4.5}
                         fill="#2B55C4" stroke="#ffffff" strokeWidth={1.5}
                         style={{ cursor: "pointer", transition: "r 0.18s ease" }}
                       />
@@ -495,7 +495,7 @@ export default function Projects() {
                       <text
                         textAnchor="middle" y="0.38em"
                         fill="#ffffff"
-                        style={{ fontSize: count > 9 ? 2.25 : 2.75, fontWeight: 800, pointerEvents: "none", userSelect: "none" }}
+                        style={{ fontSize: count > 9 ? 4.5 : 5.5, fontWeight: 800, pointerEvents: "none", userSelect: "none" }}
                       >
                         {count}
                       </text>
