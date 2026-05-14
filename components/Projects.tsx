@@ -215,7 +215,7 @@ export default function Projects() {
               style={{ color: "var(--accent)", textDecoration: "none", fontWeight: 600 }}>
               Core Development Group (Coredev USA)
             </a>
-.
+            . Hover any pin to explore project details.
           </p>
         </div>
 
@@ -329,6 +329,25 @@ export default function Projects() {
             </div>
           )}
 
+          {/* Legend */}
+          <div style={{
+            padding: "13px 24px",
+            borderTop: "1px solid var(--border)",
+            display: "flex", flexWrap: "wrap", gap: 24, alignItems: "center",
+          }}>
+            <span style={{ color: "var(--text-3)", fontSize: 9, fontWeight: 700, letterSpacing: "0.14em" }}>
+              LEGEND
+            </span>
+            {(["canopy", "rooftop", "landfill", "bess"] as Category[]).map(cat => (
+              <div key={cat} style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                <div style={{ width: 9, height: 9, borderRadius: "50%", background: CAT_COLOR[cat] }} />
+                <span style={{ color: "var(--text-3)", fontSize: 11 }}>{CAT_LABEL[cat]}</span>
+              </div>
+            ))}
+            <span style={{ marginLeft: "auto", color: "var(--text-3)", fontSize: 11 }}>
+              {PROJECTS.length} projects · hover pins to explore
+            </span>
+          </div>
         </div>
 
         {/* Footer */}
