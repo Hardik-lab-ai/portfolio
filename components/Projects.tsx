@@ -335,18 +335,12 @@ export default function Projects() {
             borderTop: "1px solid var(--border)",
             display: "flex", flexWrap: "wrap", gap: 24, alignItems: "center",
           }}>
-            <span style={{ color: "var(--text-3)", fontSize: 9, fontWeight: 700, letterSpacing: "0.14em" }}>
-              LEGEND
-            </span>
             {(["canopy", "rooftop", "landfill", "bess"] as Category[]).map(cat => (
               <div key={cat} style={{ display: "flex", alignItems: "center", gap: 7 }}>
                 <div style={{ width: 9, height: 9, borderRadius: "50%", background: CAT_COLOR[cat] }} />
                 <span style={{ color: "var(--text-3)", fontSize: 11 }}>{CAT_LABEL[cat]}</span>
               </div>
             ))}
-            <span style={{ marginLeft: "auto", color: "var(--text-3)", fontSize: 11 }}>
-              {PROJECTS.length} projects · hover pins to explore
-            </span>
           </div>
         </div>
 
