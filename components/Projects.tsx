@@ -1,9 +1,10 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps";
 
 const WORLD_GEO = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json";
 const US_GEO    = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
+
 const TOOLTIP_W = 288;
 
 type Category = "canopy" | "rooftop" | "landfill" | "bess";
@@ -17,15 +18,6 @@ interface Project {
   category: Category;
   description: string;
   sites?: number;
-}
-
-interface StateGroup {
-  key: string;
-  label: string;
-  pin: [number, number];
-  zoomCenter: [number, number];
-  zoomScale: number;
-  projectNames: string[];
 }
 
 const CAT_COLOR: Record<Category, string> = {
@@ -176,71 +168,7 @@ const PROJECTS: Project[] = [
   },
 ];
 
-// Each group = one state/region cluster pin in overview
-const STATE_GROUPS: StateGroup[] = [
-  {
-    key: "ny", label: "New York",
-    pin: [-75.5, 43.0],
-    zoomCenter: [-73.85, 40.96], zoomScale: 15000,
-    projectNames: ["Croton-Harmon Train Station", "St. John's University"],
-  },
-  {
-    key: "nj", label: "New Jersey",
-    pin: [-74.4, 40.1],
-    zoomCenter: [-75.13, 40.40], zoomScale: 10000,
-    projectNames: ["Selective Insurance HQ", "Pennsville Solar Landfill", "Sicklerville Solar Landfill"],
-  },
-  {
-    key: "dc", label: "Washington DC",
-    pin: [-77.04, 38.89],
-    zoomCenter: [-77.04, 38.89], zoomScale: 15000,
-    projectNames: ["FedEx Distribution Facility"],
-  },
-  {
-    key: "ca", label: "California",
-    pin: [-119.7, 37.3],
-    zoomCenter: [-117.6, 33.35], zoomScale: 8000,
-    projectNames: ["Scripps Hospital", "Brenntag Industrial Facility"],
-  },
-  {
-    key: "ga", label: "Georgia",
-    pin: [-83.4, 32.7],
-    zoomCenter: [-83.5, 32.8], zoomScale: 6000,
-    projectNames: ["Extra Space — Georgia"],
-  },
-  {
-    key: "fl", label: "Florida",
-    pin: [-81.3, 27.8],
-    zoomCenter: [-81.6, 28.0], zoomScale: 5000,
-    projectNames: ["Extra Space — Florida"],
-  },
-  {
-    key: "tn", label: "Tennessee",
-    pin: [-86.3, 35.9],
-    zoomCenter: [-86.7, 35.9], zoomScale: 6000,
-    projectNames: ["Extra Space — Tennessee"],
-  },
-  {
-    key: "ky", label: "Kentucky",
-    pin: [-84.3, 37.5],
-    zoomCenter: [-85.3, 37.8], zoomScale: 6000,
-    projectNames: ["Extra Space — Kentucky"],
-  },
-  {
-    key: "az", label: "Arizona",
-    pin: [-111.6, 34.3],
-    zoomCenter: [-111.6, 34.2], zoomScale: 5000,
-    projectNames: ["Extra Space — Arizona"],
-  },
-  {
-    key: "caribbean", label: "Caribbean",
-    pin: [-64.6, 18.4],
-    zoomCenter: [-64.6, 18.4], zoomScale: 10000,
-    projectNames: ["Caribbean Microgrid"],
-  },
-];
-
-// State abbreviations for states WITHOUT cluster pins
+// State abbreviations at approximate centroids [lng, lat]
 const STATE_LABELS: { abbr: string; coords: [number, number] }[] = [
   { abbr: "ME", coords: [-69.2, 45.4] },
   { abbr: "NH", coords: [-71.5, 43.7] },
@@ -248,6 +176,8 @@ const STATE_LABELS: { abbr: string; coords: [number, number] }[] = [
   { abbr: "MA", coords: [-71.8, 42.2] },
   { abbr: "RI", coords: [-71.4, 41.6] },
   { abbr: "CT", coords: [-72.7, 41.6] },
+  { abbr: "NY", coords: [-75.5, 43.0] },
+  { abbr: "NJ", coords: [-74.4, 40.1] },
   { abbr: "PA", coords: [-77.2, 40.9] },
   { abbr: "DE", coords: [-75.5, 38.9] },
   { abbr: "MD", coords: [-76.8, 38.8] },
@@ -255,8 +185,12 @@ const STATE_LABELS: { abbr: string; coords: [number, number] }[] = [
   { abbr: "WV", coords: [-80.6, 38.6] },
   { abbr: "NC", coords: [-79.4, 35.6] },
   { abbr: "SC", coords: [-80.9, 33.8] },
+  { abbr: "GA", coords: [-83.4, 32.7] },
+  { abbr: "FL", coords: [-81.3, 27.8] },
   { abbr: "AL", coords: [-86.7, 32.7] },
   { abbr: "MS", coords: [-89.6, 32.7] },
+  { abbr: "TN", coords: [-86.3, 35.9] },
+  { abbr: "KY", coords: [-84.3, 37.5] },
   { abbr: "OH", coords: [-82.8, 40.4] },
   { abbr: "MI", coords: [-85.4, 44.3] },
   { abbr: "IN", coords: [-86.3, 40.3] },
@@ -277,13 +211,16 @@ const STATE_LABELS: { abbr: string; coords: [number, number] }[] = [
   { abbr: "WY", coords: [-107.6, 43.0] },
   { abbr: "CO", coords: [-105.5, 39.1] },
   { abbr: "NM", coords: [-106.2, 34.5] },
+  { abbr: "AZ", coords: [-111.6, 34.3] },
   { abbr: "UT", coords: [-111.1, 39.4] },
   { abbr: "NV", coords: [-116.7, 39.3] },
+  { abbr: "CA", coords: [-119.7, 37.3] },
   { abbr: "OR", coords: [-120.6, 44.0] },
   { abbr: "WA", coords: [-120.5, 47.5] },
   { abbr: "ID", coords: [-114.5, 44.4] },
 ];
 
+// Country labels visible in the map viewport [lng, lat]
 const COUNTRY_LABELS: { name: string; coords: [number, number] }[] = [
   { name: "CANADA",  coords: [-96.0, 57.0] },
   { name: "MEXICO",  coords: [-102.5, 23.5] },
@@ -291,25 +228,16 @@ const COUNTRY_LABELS: { name: string; coords: [number, number] }[] = [
   { name: "BAHAMAS", coords: [-77.4, 25.0] },
 ];
 
-type TooltipState =
-  | { kind: "project"; project: Project; x: number; y: number }
-  | { kind: "cluster"; group: StateGroup; x: number; y: number };
+interface TooltipState {
+  project: Project;
+  x: number;
+  y: number;
+}
 
 export default function Projects() {
-  const [selectedGroup, setSelectedGroup] = useState<StateGroup | null>(null);
-  const [transitioning,  setTransitioning]  = useState(false);
-  const [tooltip,        setTooltip]        = useState<TooltipState | null>(null);
-  const [mounted,        setMounted]        = useState(false);
-  const [winW,           setWinW]           = useState(1280);
-
-  const changeView = useCallback((next: StateGroup | null) => {
-    setTooltip(null);
-    setTransitioning(true);
-    setTimeout(() => {
-      setSelectedGroup(next);
-      setTransitioning(false);
-    }, 220);
-  }, []);
+  const [tooltip,  setTooltip]  = useState<TooltipState | null>(null);
+  const [mounted,  setMounted]  = useState(false);
+  const [winW,     setWinW]     = useState(1280);
 
   useEffect(() => {
     setMounted(true);
@@ -319,30 +247,12 @@ export default function Projects() {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && selectedGroup) changeView(null);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [selectedGroup, changeView]);
-
-  const projConfig = selectedGroup
-    ? { center: selectedGroup.zoomCenter, scale: selectedGroup.zoomScale }
-    : { center: [-92, 28] as [number, number], scale: 650 };
-
-  const isOverview    = !selectedGroup && !transitioning;
-  const isDetail      = !!selectedGroup && !transitioning;
-  const activeProject = tooltip?.kind === "project" ? tooltip.project.name : null;
-
-  const currentProjects = selectedGroup
-    ? PROJECTS.filter(p => selectedGroup.projectNames.includes(p.name))
-    : [];
+  const active = tooltip?.project.name ?? null;
 
   const ttLeft = tooltip
     ? Math.max(8, Math.min(tooltip.x - TOOLTIP_W / 2, winW - TOOLTIP_W - 8))
     : 0;
-  const ttTop = tooltip ? tooltip.y + 18 : 0;
+  const ttTop  = tooltip ? tooltip.y + 18 : 0;
 
   return (
     <section id="projects" style={{ background: "var(--bg-page)", padding: "100px 0" }}>
@@ -364,187 +274,154 @@ export default function Projects() {
               style={{ color: "var(--accent)", textDecoration: "none", fontWeight: 600 }}>
               Core Development Group (Coredev USA)
             </a>
-            . Click a state pin to explore, press ESC to zoom back out.
+            . Hover any pin to explore project details.
           </p>
         </div>
 
-        {/* Map card */}
+        {/* Full-width map */}
         <div style={{
-          position: "relative",
           background: "var(--bg-card)",
           border: "1px solid var(--border)",
           borderRadius: 16,
           overflow: "hidden",
           boxShadow: "var(--shadow-sm)",
         }}>
-
-          {/* Back button overlay */}
-          {isDetail && (
-            <button
-              onClick={() => changeView(null)}
-              style={{
-                position: "absolute", top: 14, left: 14, zIndex: 10,
-                display: "flex", alignItems: "center", gap: 8,
-                background: "rgba(15,23,42,0.72)",
-                border: "1px solid rgba(255,255,255,0.18)",
-                borderRadius: 8, color: "#fff",
-                padding: "7px 14px 7px 10px",
-                fontSize: 12, fontWeight: 600, cursor: "pointer",
-                backdropFilter: "blur(6px)",
-                WebkitBackdropFilter: "blur(6px)",
-                lineHeight: 1,
-              }}
-            >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M19 12H5M12 5l-7 7 7 7"/>
-              </svg>
-              {selectedGroup!.label}
-              <span style={{
-                background: "rgba(255,255,255,0.12)", borderRadius: 4,
-                padding: "2px 6px", fontSize: 10, fontWeight: 700,
-                letterSpacing: "0.04em", color: "rgba(255,255,255,0.55)",
-              }}>
-                ESC
-              </span>
-            </button>
-          )}
-
-          {/* Map */}
           {mounted ? (
-            <div style={{ opacity: transitioning ? 0 : 1, transition: "opacity 0.22s ease" }}>
-              <ComposableMap
-                projection="geoMercator"
-                projectionConfig={projConfig}
-                height={500}
-                style={{ width: "100%", height: "auto", display: "block" }}
-              >
-                {/* World landmasses */}
-                <Geographies geography={WORLD_GEO}>
-                  {({ geographies }) =>
-                    geographies.map(geo => (
-                      <Geography key={geo.rsmKey} geography={geo}
-                        fill="var(--bg-alt)" stroke="var(--border-strong)" strokeWidth={0.3}
-                        style={{ default: { outline: "none" }, hover: { outline: "none" }, pressed: { outline: "none" } }}
-                      />
-                    ))
-                  }
-                </Geographies>
+            <ComposableMap
+              projection="geoMercator"
+              projectionConfig={{ center: [-92, 28], scale: 650 }}
+              height={500}
+              style={{ width: "100%", height: "auto", display: "block" }}
+            >
+              {/* World landmasses */}
+              <Geographies geography={WORLD_GEO}>
+                {({ geographies }) =>
+                  geographies.map(geo => (
+                    <Geography
+                      key={geo.rsmKey}
+                      geography={geo}
+                      fill="var(--bg-alt)"
+                      stroke="var(--border-strong)"
+                      strokeWidth={0.3}
+                      style={{
+                        default: { outline: "none" },
+                        hover:   { outline: "none" },
+                        pressed: { outline: "none" },
+                      }}
+                    />
+                  ))
+                }
+              </Geographies>
 
-                {/* US state borders */}
-                <Geographies geography={US_GEO}>
-                  {({ geographies }) =>
-                    geographies.map(geo => (
-                      <Geography key={geo.rsmKey} geography={geo}
-                        fill="transparent" stroke="var(--border)" strokeWidth={0.5}
-                        style={{ default: { outline: "none" }, hover: { outline: "none" }, pressed: { outline: "none" } }}
-                      />
-                    ))
-                  }
-                </Geographies>
+              {/* US state borders */}
+              <Geographies geography={US_GEO}>
+                {({ geographies }) =>
+                  geographies.map(geo => (
+                    <Geography
+                      key={geo.rsmKey}
+                      geography={geo}
+                      fill="transparent"
+                      stroke="var(--border)"
+                      strokeWidth={0.5}
+                      style={{
+                        default: { outline: "none" },
+                        hover:   { outline: "none" },
+                        pressed: { outline: "none" },
+                      }}
+                    />
+                  ))
+                }
+              </Geographies>
 
-                {/* Country + state labels (overview only) */}
-                {isOverview && (
-                  <>
-                    {COUNTRY_LABELS.map(({ name, coords }) => (
-                      <Marker key={name} coordinates={coords}>
-                        <text textAnchor="middle" fill="var(--text-2)"
-                          style={{ fontSize: 7, fontWeight: 700, letterSpacing: "0.14em", opacity: 0.45, pointerEvents: "none", userSelect: "none" }}>
-                          {name}
-                        </text>
-                      </Marker>
-                    ))}
-                    {STATE_LABELS.map(({ abbr, coords }) => (
-                      <Marker key={abbr} coordinates={coords}>
-                        <text textAnchor="middle" fill="var(--text-3)"
-                          style={{ fontSize: 5.5, fontWeight: 600, letterSpacing: "0.04em", opacity: 0.6, pointerEvents: "none", userSelect: "none" }}>
-                          {abbr}
-                        </text>
-                      </Marker>
-                    ))}
-                  </>
-                )}
+              {/* Country labels */}
+              {COUNTRY_LABELS.map(({ name, coords }) => (
+                <Marker key={name} coordinates={coords}>
+                  <text
+                    textAnchor="middle"
+                    fill="var(--text-2)"
+                    style={{
+                      fontSize: 7,
+                      fontWeight: 700,
+                      letterSpacing: "0.14em",
+                      opacity: 0.45,
+                      pointerEvents: "none",
+                      userSelect: "none",
+                    }}
+                  >
+                    {name}
+                  </text>
+                </Marker>
+              ))}
 
-                {/* ── OVERVIEW: cluster pins ─────────────────────── */}
-                {isOverview && STATE_GROUPS.map(group => {
-                  const isHovered = tooltip?.kind === "cluster" && tooltip.group.key === group.key;
-                  const count = group.projectNames.length;
-                  return (
-                    <Marker
-                      key={group.key}
-                      coordinates={group.pin}
-                      onClick={() => changeView(group)}
-                      onMouseEnter={(e) => setTooltip({ kind: "cluster", group, x: (e as unknown as MouseEvent).clientX, y: (e as unknown as MouseEvent).clientY })}
-                      onMouseMove={(e)  => setTooltip(t => t?.kind === "cluster" && t.group.key === group.key
-                        ? { ...t, x: (e as unknown as MouseEvent).clientX, y: (e as unknown as MouseEvent).clientY } : t)}
-                      onMouseLeave={() => setTooltip(null)}
-                    >
-                      {/* Outer glow */}
-                      <circle
-                        r={isHovered ? 8.5 : 6.5}
-                        fill="#2B55C4" opacity={isHovered ? 0.22 : 0.13}
-                        style={{ transition: "r 0.18s ease, opacity 0.18s ease" }}
-                      />
-                      {/* Fill circle */}
-                      <circle
-                        r={isHovered ? 6 : 4.5}
-                        fill="#2B55C4" stroke="#ffffff" strokeWidth={1.5}
-                        style={{ cursor: "pointer", transition: "r 0.18s ease" }}
-                      />
-                      {/* Count label */}
+              {/* State abbreviation labels */}
+              {STATE_LABELS.map(({ abbr, coords }) => (
+                <Marker key={abbr} coordinates={coords}>
+                  <text
+                    textAnchor="middle"
+                    fill="var(--text-3)"
+                    style={{
+                      fontSize: 5.5,
+                      fontWeight: 600,
+                      letterSpacing: "0.04em",
+                      opacity: 0.6,
+                      pointerEvents: "none",
+                      userSelect: "none",
+                    }}
+                  >
+                    {abbr}
+                  </text>
+                </Marker>
+              ))}
+
+              {/* Project pins — rendered last to stay on top */}
+              {PROJECTS.map(project => {
+                const color    = CAT_COLOR[project.category];
+                const isActive = active === project.name;
+                return (
+                  <Marker
+                    key={project.name}
+                    coordinates={project.coords}
+                    onMouseEnter={(e) => setTooltip({ project, x: (e as unknown as MouseEvent).clientX, y: (e as unknown as MouseEvent).clientY })}
+                    onMouseMove={(e)  => setTooltip(t => t?.project.name === project.name ? { ...t, x: (e as unknown as MouseEvent).clientX, y: (e as unknown as MouseEvent).clientY } : t)}
+                    onMouseLeave={()  => setTooltip(null)}
+                  >
+                    {/* Outer glow */}
+                    <circle r={isActive ? 11 : 7} fill={color}
+                      opacity={isActive ? 0.18 : 0.10}
+                      style={{ transition: "r 0.22s ease, opacity 0.22s ease" }}
+                    />
+                    {/* Mid ring */}
+                    <circle r={isActive ? 7 : 4.5} fill={color}
+                      opacity={isActive ? 0.30 : 0.18}
+                      style={{ transition: "r 0.22s ease" }}
+                    />
+                    {/* Core dot */}
+                    <circle
+                      r={isActive ? 3.5 : 2.5}
+                      fill={color}
+                      stroke="#FFFFFF"
+                      strokeWidth={isActive ? 1.5 : 1}
+                      style={{
+                        cursor: "pointer",
+                        transition: "r 0.18s ease",
+                        filter: isActive ? `drop-shadow(0 0 3px ${color})` : "none",
+                      }}
+                    />
+                    {/* Site count */}
+                    {project.sites && (
                       <text
-                        textAnchor="middle" y="0.38em"
-                        fill="#ffffff"
-                        style={{ fontSize: count > 9 ? 4.5 : 5.5, fontWeight: 800, pointerEvents: "none", userSelect: "none" }}
+                        y={isActive ? -13 : -9}
+                        textAnchor="middle"
+                        fill={color}
+                        style={{ fontSize: 6, fontWeight: 700, letterSpacing: "0.10em", pointerEvents: "none" }}
                       >
-                        {count}
+                        {project.sites} SITES
                       </text>
-                    </Marker>
-                  );
-                })}
-
-                {/* ── DETAIL: individual project pins ───────────── */}
-                {isDetail && currentProjects.map(project => {
-                  const color    = CAT_COLOR[project.category];
-                  const isActive = activeProject === project.name;
-                  return (
-                    <Marker
-                      key={project.name}
-                      coordinates={project.coords}
-                      onMouseEnter={(e) => setTooltip({ kind: "project", project, x: (e as unknown as MouseEvent).clientX, y: (e as unknown as MouseEvent).clientY })}
-                      onMouseMove={(e)  => setTooltip(t => t?.kind === "project" && t.project.name === project.name
-                        ? { ...t, x: (e as unknown as MouseEvent).clientX, y: (e as unknown as MouseEvent).clientY } : t)}
-                      onMouseLeave={() => setTooltip(null)}
-                    >
-                      <circle r={isActive ? 11 : 7} fill={color}
-                        opacity={isActive ? 0.18 : 0.10}
-                        style={{ transition: "r 0.22s ease, opacity 0.22s ease" }}
-                      />
-                      <circle r={isActive ? 7 : 4.5} fill={color}
-                        opacity={isActive ? 0.30 : 0.18}
-                        style={{ transition: "r 0.22s ease" }}
-                      />
-                      <circle
-                        r={isActive ? 3.5 : 2.5}
-                        fill={color} stroke="#FFFFFF" strokeWidth={isActive ? 1.5 : 1}
-                        style={{
-                          cursor: "pointer", transition: "r 0.18s ease",
-                          filter: isActive ? `drop-shadow(0 0 3px ${color})` : "none",
-                        }}
-                      />
-                      {project.sites && (
-                        <text
-                          y={isActive ? -13 : -9} textAnchor="middle" fill={color}
-                          style={{ fontSize: 6, fontWeight: 700, letterSpacing: "0.10em", pointerEvents: "none" }}
-                        >
-                          {project.sites} SITES
-                        </text>
-                      )}
-                    </Marker>
-                  );
-                })}
-              </ComposableMap>
-            </div>
+                    )}
+                  </Marker>
+                );
+              })}
+            </ComposableMap>
           ) : (
             <div style={{ height: 480, display: "flex", alignItems: "center", justifyContent: "center" }}>
               <span style={{ color: "var(--text-3)", fontSize: 13 }}>Loading map…</span>
@@ -579,17 +456,20 @@ export default function Projects() {
         </div>
       </div>
 
-      {/* ── Floating tooltip ──────────────────────────────────── */}
+      {/* Floating tooltip */}
       {tooltip && (
-        <div style={{
-          position: "fixed",
-          left: ttLeft, top: ttTop,
-          width: TOOLTIP_W,
-          zIndex: 9999,
-          pointerEvents: "none",
-          animation: "fadeUp 0.15s ease-out forwards",
-        }}>
-          {/* Arrow */}
+        <div
+          style={{
+            position: "fixed",
+            left:  ttLeft,
+            top:   ttTop,
+            width: TOOLTIP_W,
+            zIndex: 9999,
+            pointerEvents: "none",
+            animation: "fadeUp 0.15s ease-out forwards",
+          }}
+        >
+          {/* Arrow caret */}
           <div style={{
             position: "absolute",
             top: -6, left: tooltip.x - ttLeft - 6,
@@ -605,101 +485,51 @@ export default function Projects() {
           <div style={{
             background: "var(--bg-card)",
             border: "1px solid var(--border)",
-            borderTop: tooltip.kind === "cluster"
-              ? "3px solid #2B55C4"
-              : `3px solid ${CAT_COLOR[tooltip.project.category]}`,
+            borderTop: `3px solid ${CAT_COLOR[tooltip.project.category]}`,
             borderRadius: 10,
             padding: "16px 18px 18px",
             boxShadow: "var(--shadow-lg)",
           }}>
-            {tooltip.kind === "cluster" ? (
-              /* ── Cluster card ── */
-              <>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                  <span style={{
-                    background: "#2B55C418",
-                    color: "#2B55C4",
-                    fontSize: 9, fontWeight: 800, letterSpacing: "0.13em",
-                    padding: "3px 8px", borderRadius: 4,
-                  }}>
-                    {tooltip.group.projectNames.length} PROJECT{tooltip.group.projectNames.length > 1 ? "S" : ""}
-                  </span>
-                </div>
-                <div style={{
-                  fontFamily: "var(--font-heading)", fontSize: 15, fontWeight: 700,
-                  color: "var(--text-1)", lineHeight: 1.25, marginBottom: 12,
-                }}>
-                  {tooltip.group.label}
-                </div>
-                <div style={{ height: 1, background: "var(--border)", marginBottom: 10 }} />
-                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  {tooltip.group.projectNames.map(name => {
-                    const proj = PROJECTS.find(p => p.name === name)!;
-                    return (
-                      <div key={name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-                        <span style={{ color: "var(--text-2)", fontSize: 12, lineHeight: 1.4 }}>{name}</span>
-                        <span style={{
-                          color: CAT_COLOR[proj.category], fontSize: 11, fontWeight: 700,
-                          flexShrink: 0, lineHeight: 1,
-                        }}>
-                          {proj.size}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-                <div style={{
-                  marginTop: 12, color: "var(--text-3)", fontSize: 10,
-                  display: "flex", alignItems: "center", gap: 4,
-                }}>
-                  Click to explore
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M5 12h14M12 5l7 7-7 7"/>
-                  </svg>
-                </div>
-              </>
-            ) : (
-              /* ── Project card (existing design) ── */
-              <>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                  <span style={{
-                    background: `${CAT_COLOR[tooltip.project.category]}18`,
-                    color: CAT_COLOR[tooltip.project.category],
-                    fontSize: 9, fontWeight: 800, letterSpacing: "0.13em",
-                    padding: "3px 8px", borderRadius: 4,
-                  }}>
-                    {tooltip.project.type.toUpperCase()}
-                  </span>
-                  <span style={{
-                    fontFamily: "var(--font-heading)", fontSize: 18, fontWeight: 800,
-                    color: CAT_COLOR[tooltip.project.category], lineHeight: 1,
-                  }}>
-                    {tooltip.project.size}
-                  </span>
-                </div>
-                <div style={{
-                  fontFamily: "var(--font-heading)", fontSize: 15, fontWeight: 700,
-                  color: "var(--text-1)", lineHeight: 1.25, marginBottom: 6,
-                }}>
-                  {tooltip.project.name}
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 10 }}>
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
-                    stroke={CAT_COLOR[tooltip.project.category]} strokeWidth="2.5" strokeLinecap="round">
-                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
-                    <circle cx="12" cy="9" r="2.5"/>
-                  </svg>
-                  <span style={{ color: "var(--text-2)", fontSize: 12, fontWeight: 500 }}>
-                    {tooltip.project.location}
-                  </span>
-                </div>
-                <div style={{ height: 1, background: "var(--border)", marginBottom: 10 }} />
-                <p style={{ color: "var(--text-2)", fontSize: 12, lineHeight: 1.65, margin: 0 }}>
-                  {tooltip.project.description}
-                </p>
-              </>
-            )}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+              <span style={{
+                background: `${CAT_COLOR[tooltip.project.category]}18`,
+                color: CAT_COLOR[tooltip.project.category],
+                fontSize: 9, fontWeight: 800, letterSpacing: "0.13em",
+                padding: "3px 8px", borderRadius: 4,
+              }}>
+                {tooltip.project.type.toUpperCase()}
+              </span>
+              <span style={{
+                fontFamily: "var(--font-heading)", fontSize: 18, fontWeight: 800,
+                color: CAT_COLOR[tooltip.project.category], lineHeight: 1,
+              }}>
+                {tooltip.project.size}
+              </span>
+            </div>
+
+            <div style={{
+              fontFamily: "var(--font-heading)", fontSize: 15, fontWeight: 700,
+              color: "var(--text-1)", lineHeight: 1.25, marginBottom: 6,
+            }}>
+              {tooltip.project.name}
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 10 }}>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+                stroke={CAT_COLOR[tooltip.project.category]} strokeWidth="2.5" strokeLinecap="round">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+                <circle cx="12" cy="9" r="2.5"/>
+              </svg>
+              <span style={{ color: "var(--text-2)", fontSize: 12, fontWeight: 500 }}>
+                {tooltip.project.location}
+              </span>
+            </div>
+
+            <div style={{ height: 1, background: "var(--border)", marginBottom: 10 }} />
+
+            <p style={{ color: "var(--text-2)", fontSize: 12, lineHeight: 1.65, margin: 0 }}>
+              {tooltip.project.description}
+            </p>
           </div>
         </div>
       )}
