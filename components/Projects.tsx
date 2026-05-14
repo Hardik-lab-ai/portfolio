@@ -287,34 +287,34 @@ export default function Projects() {
                     onMouseLeave={()  => setTooltip(null)}
                   >
                     {/* Outer glow */}
-                    <circle r={isActive ? 22 : 14} fill={color}
+                    <circle r={isActive ? 11 : 7} fill={color}
                       opacity={isActive ? 0.18 : 0.10}
                       style={{ transition: "r 0.22s ease, opacity 0.22s ease" }}
                     />
                     {/* Mid ring */}
-                    <circle r={isActive ? 14 : 9} fill={color}
+                    <circle r={isActive ? 7 : 4.5} fill={color}
                       opacity={isActive ? 0.30 : 0.18}
                       style={{ transition: "r 0.22s ease" }}
                     />
                     {/* Core dot */}
                     <circle
-                      r={isActive ? 7 : 5}
+                      r={isActive ? 3.5 : 2.5}
                       fill={color}
                       stroke="#FFFFFF"
-                      strokeWidth={isActive ? 2.5 : 1.5}
+                      strokeWidth={isActive ? 1.5 : 1}
                       style={{
                         cursor: "pointer",
                         transition: "r 0.18s ease",
-                        filter: isActive ? `drop-shadow(0 0 5px ${color})` : "none",
+                        filter: isActive ? `drop-shadow(0 0 3px ${color})` : "none",
                       }}
                     />
                     {/* Site count */}
                     {project.sites && (
                       <text
-                        y={isActive ? -26 : -18}
+                        y={isActive ? -13 : -9}
                         textAnchor="middle"
                         fill={color}
-                        style={{ fontSize: 7, fontWeight: 700, letterSpacing: "0.10em", pointerEvents: "none" }}
+                        style={{ fontSize: 6, fontWeight: 700, letterSpacing: "0.10em", pointerEvents: "none" }}
                       >
                         {project.sites} SITES
                       </text>
