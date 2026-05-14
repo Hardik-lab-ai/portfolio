@@ -16,7 +16,7 @@ interface Project {
   type: string;
   category: Category;
   description: string;
-  multiSite?: boolean;
+  sites?: number;
 }
 
 const CAT_COLOR: Record<Category, string> = {
@@ -107,14 +107,54 @@ const PROJECTS: Project[] = [
     description: "Rooftop PV system on an industrial chemicals distribution center. Managed LADBS permitting, safety planning, and IOU interconnection.",
   },
   {
-    name: "Extra Space Storage",
-    coords: [-98.35, 39.50],
-    location: "38 Locations Nationwide",
-    size: "8 MW Total",
+    name: "Extra Space — Georgia",
+    coords: [-83.5, 32.8],
+    location: "Georgia · 13 Sites",
+    size: "2 MW",
     type: "Rooftop Solar",
     category: "rooftop",
-    description: "Multi-site rooftop solar program across 38 storage facilities. Managed simultaneous permitting, procurement, and construction across multiple states.",
-    multiSite: true,
+    description: "13 Extra Space Storage rooftop solar installations across Georgia. Managed simultaneous permitting, procurement, and construction.",
+    sites: 13,
+  },
+  {
+    name: "Extra Space — Florida",
+    coords: [-81.6, 28.0],
+    location: "Florida · 10 Sites",
+    size: "3 MW",
+    type: "Rooftop Solar",
+    category: "rooftop",
+    description: "10 Extra Space Storage rooftop solar installations across Florida. Coordinated multi-site scheduling and electrical interconnections.",
+    sites: 10,
+  },
+  {
+    name: "Extra Space — Tennessee",
+    coords: [-86.7, 35.9],
+    location: "Tennessee · 10 Sites",
+    size: "2 MW",
+    type: "Rooftop Solar",
+    category: "rooftop",
+    description: "10 Extra Space Storage rooftop solar installations across Tennessee. Managed concurrent permitting and construction across both sites.",
+    sites: 10,
+  },
+  {
+    name: "Extra Space — Kentucky",
+    coords: [-85.3, 37.8],
+    location: "Kentucky · 3 Sites",
+    size: "500 KW",
+    type: "Rooftop Solar",
+    category: "rooftop",
+    description: "3 Extra Space Storage rooftop solar installations across Kentucky.",
+    sites: 3,
+  },
+  {
+    name: "Extra Space — Arizona",
+    coords: [-111.6, 34.2],
+    location: "Arizona · 2 Sites",
+    size: "500 KW",
+    type: "Rooftop Solar",
+    category: "rooftop",
+    description: "2 Extra Space Storage rooftop solar installations across Arizona.",
+    sites: 2,
   },
   {
     name: "Caribbean Microgrid",
@@ -164,7 +204,7 @@ export default function Projects() {
               style={{ color: "var(--accent)", textDecoration: "none", fontWeight: 600 }}>
               Core Development Group (Coredev USA)
             </a>
-            . Hover any pin to explore.
+            . Hover any pin to explore — Extra Space Storage shown by state.
           </p>
         </div>
 
@@ -266,8 +306,8 @@ export default function Projects() {
                           filter: isActive ? `drop-shadow(0 0 4px ${color})` : "none",
                         }}
                       />
-                      {/* Multi-site label */}
-                      {project.multiSite && (
+                      {/* Site count label for multi-site projects */}
+                      {project.sites && (
                         <text
                           y={isActive ? -26 : -19}
                           textAnchor="middle"
@@ -277,7 +317,7 @@ export default function Projects() {
                             pointerEvents: "none", transition: "y 0.2s ease",
                           }}
                         >
-                          38 SITES
+                          {project.sites} SITES
                         </text>
                       )}
                     </Marker>
