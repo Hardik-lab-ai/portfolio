@@ -1,17 +1,18 @@
 "use client";
-import { useState, useEffect } from "react";
-import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps";
-
-const WORLD_GEO = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json";
-const US_GEO    = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
+import { useState, useEffect, useRef } from "react";
 
 const TOOLTIP_W = 288;
+
+// ESRI tile layers — no API key required
+const TILE_SATELLITE = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+const TILE_TOPO      = "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}";
+const TILE_ATTR      = "Tiles &copy; <a href='https://www.esri.com'>Esri</a>";
 
 type Category = "canopy" | "rooftop" | "landfill" | "bess";
 
 interface Project {
   name: string;
-  coords: [number, number];
+  coords: [number, number]; // [lng, lat]
   location: string;
   size: string;
   type: string;
@@ -168,32 +169,44 @@ const PROJECTS: Project[] = [
   },
 ];
 
-interface TooltipState {
-  project: Project;
-  x: number;
-  y: number;
-}
+interface TooltipState { project: Project; x: number; y: number; }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyComp = React.ComponentType<any>;
+interface MapLib { MapContainer: AnyComp; TileLayer: AnyComp; CircleMarker: AnyComp; }
 
 export default function Projects() {
-  const [tooltip,  setTooltip]  = useState<TooltipState | null>(null);
-  const [mounted,  setMounted]  = useState(false);
-  const [winW,     setWinW]     = useState(1280);
+  const [tooltip, setTooltip] = useState<TooltipState | null>(null);
+  const [winW,    setWinW]    = useState(1280);
+  const [mapLib,  setMapLib]  = useState<MapLib | null>(null);
+  const mapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setMounted(true);
     setWinW(window.innerWidth);
     const onResize = () => setWinW(window.innerWidth);
     window.addEventListener("resize", onResize);
+
+    // Dynamically import Leaflet + CSS to avoid SSR issues
+    Promise.all([
+      import("leaflet/dist/leaflet.css" as string),
+      import("react-leaflet"),
+    ]).then(([, rl]) => {
+      setMapLib({
+        MapContainer:  rl.MapContainer,
+        TileLayer:     rl.TileLayer,
+        CircleMarker:  rl.CircleMarker,
+      });
+    });
+
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  const active = tooltip?.project.name ?? null;
-
-  // Clamp tooltip so it never overflows the viewport
   const ttLeft = tooltip
     ? Math.max(8, Math.min(tooltip.x - TOOLTIP_W / 2, winW - TOOLTIP_W - 8))
     : 0;
-  const ttTop  = tooltip ? tooltip.y + 18 : 0;
+  const ttTop = tooltip ? tooltip.y + 18 : 0;
+
+  const { MapContainer, TileLayer, CircleMarker } = mapLib ?? {};
 
   return (
     <section id="projects" style={{ background: "var(--bg-page)", padding: "100px 0" }}>
@@ -214,138 +227,84 @@ export default function Projects() {
             <a href="https://www.coredevusa.com" target="_blank" rel="noopener noreferrer"
               style={{ color: "var(--accent)", textDecoration: "none", fontWeight: 600 }}>
               Core Development Group (Coredev USA)
-            </a>
-            . Hover any pin to explore project details.
+            </a>.
           </p>
         </div>
 
-        {/* Full-width map */}
-        <div style={{
-          background: "var(--bg-card)",
-          border: "1px solid var(--border)",
-          borderRadius: 16,
-          overflow: "hidden",
-          boxShadow: "var(--shadow-sm)",
-        }}>
-          {mounted ? (
-            <ComposableMap
-              projection="geoMercator"
-              projectionConfig={{ center: [-92, 28], scale: 650 }}
-              height={500}
-              style={{ width: "100%", height: "auto", display: "block" }}
+        {/* Map */}
+        <div
+          ref={mapRef}
+          style={{
+            borderRadius: 16, overflow: "hidden",
+            border: "1px solid var(--border)",
+            boxShadow: "var(--shadow-md)",
+            height: 540,
+            background: "#0d1f2d",
+          }}
+        >
+          {MapContainer && TileLayer && CircleMarker ? (
+            <MapContainer
+              center={[32, -90] as [number, number]}
+              zoom={4}
+              scrollWheelZoom={false}
+              style={{ height: "100%", width: "100%" }}
+              attributionControl={true}
             >
-              {/* World landmasses */}
-              <Geographies geography={WORLD_GEO}>
-                {({ geographies }) =>
-                  geographies.map(geo => (
-                    <Geography
-                      key={geo.rsmKey}
-                      geography={geo}
-                      fill="var(--bg-alt)"
-                      stroke="var(--border-strong)"
-                      strokeWidth={0.3}
-                      style={{
-                        default: { outline: "none" },
-                        hover:   { outline: "none" },
-                        pressed: { outline: "none" },
-                      }}
-                    />
-                  ))
-                }
-              </Geographies>
+              {/* Satellite base */}
+              <TileLayer url={TILE_SATELLITE} attribution={TILE_ATTR} maxZoom={19} />
+              {/* Topo / reference overlay */}
+              <TileLayer url={TILE_TOPO} maxZoom={19} opacity={0.75} />
 
-              {/* US state borders */}
-              <Geographies geography={US_GEO}>
-                {({ geographies }) =>
-                  geographies.map(geo => (
-                    <Geography
-                      key={geo.rsmKey}
-                      geography={geo}
-                      fill="transparent"
-                      stroke="var(--border)"
-                      strokeWidth={0.5}
-                      style={{
-                        default: { outline: "none" },
-                        hover:   { outline: "none" },
-                        pressed: { outline: "none" },
-                      }}
-                    />
-                  ))
-                }
-              </Geographies>
-
-              {/* Project pins */}
               {PROJECTS.map(project => {
                 const color    = CAT_COLOR[project.category];
-                const isActive = active === project.name;
+                const isActive = tooltip?.project.name === project.name;
                 return (
-                  <Marker
+                  <CircleMarker
                     key={project.name}
-                    coordinates={project.coords}
-                    onMouseEnter={(e) => setTooltip({ project, x: (e as unknown as MouseEvent).clientX, y: (e as unknown as MouseEvent).clientY })}
-                    onMouseMove={(e)  => setTooltip(t => t?.project.name === project.name ? { ...t, x: (e as unknown as MouseEvent).clientX, y: (e as unknown as MouseEvent).clientY } : t)}
-                    onMouseLeave={()  => setTooltip(null)}
-                  >
-                    {/* Outer glow */}
-                    <circle r={isActive ? 11 : 7} fill={color}
-                      opacity={isActive ? 0.18 : 0.10}
-                      style={{ transition: "r 0.22s ease, opacity 0.22s ease" }}
-                    />
-                    {/* Mid ring */}
-                    <circle r={isActive ? 7 : 4.5} fill={color}
-                      opacity={isActive ? 0.30 : 0.18}
-                      style={{ transition: "r 0.22s ease" }}
-                    />
-                    {/* Core dot */}
-                    <circle
-                      r={isActive ? 3.5 : 2.5}
-                      fill={color}
-                      stroke="#FFFFFF"
-                      strokeWidth={isActive ? 1.5 : 1}
-                      style={{
-                        cursor: "pointer",
-                        transition: "r 0.18s ease",
-                        filter: isActive ? `drop-shadow(0 0 3px ${color})` : "none",
-                      }}
-                    />
-                    {/* Site count */}
-                    {project.sites && (
-                      <text
-                        y={isActive ? -13 : -9}
-                        textAnchor="middle"
-                        fill={color}
-                        style={{ fontSize: 6, fontWeight: 700, letterSpacing: "0.10em", pointerEvents: "none" }}
-                      >
-                        {project.sites} SITES
-                      </text>
-                    )}
-                  </Marker>
+                    center={[project.coords[1], project.coords[0]] as [number, number]}
+                    radius={isActive ? 8 : 5}
+                    pathOptions={{
+                      fillColor: color,
+                      color: "#FFFFFF",
+                      weight: isActive ? 2 : 1.5,
+                      fillOpacity: 1,
+                      opacity: 1,
+                    }}
+                    eventHandlers={{
+                      mouseover: (e: { originalEvent: MouseEvent }) =>
+                        setTooltip({ project, x: e.originalEvent.clientX, y: e.originalEvent.clientY }),
+                      mousemove: (e: { originalEvent: MouseEvent }) =>
+                        setTooltip(t => t?.project.name === project.name
+                          ? { ...t, x: e.originalEvent.clientX, y: e.originalEvent.clientY }
+                          : t),
+                      mouseout: () => setTooltip(null),
+                    }}
+                  />
                 );
               })}
-            </ComposableMap>
+            </MapContainer>
           ) : (
-            <div style={{ height: 480, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <span style={{ color: "var(--text-3)", fontSize: 13 }}>Loading map…</span>
+            <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 13 }}>Loading satellite map…</span>
             </div>
           )}
+        </div>
 
-          {/* Legend */}
-          <div style={{
-            padding: "13px 24px",
-            borderTop: "1px solid var(--border)",
-            display: "flex", flexWrap: "wrap", gap: 24, alignItems: "center",
-          }}>
-            {(["canopy", "rooftop", "landfill", "bess"] as Category[]).map(cat => (
-              <div key={cat} style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                <div style={{ width: 9, height: 9, borderRadius: "50%", background: CAT_COLOR[cat] }} />
-                <span style={{ color: "var(--text-3)", fontSize: 11 }}>{CAT_LABEL[cat]}</span>
-              </div>
-            ))}
-          </div>
+        {/* Legend */}
+        <div style={{
+          marginTop: 16, display: "flex", flexWrap: "wrap", gap: 20,
+          padding: "0 4px",
+        }}>
+          {(["canopy", "rooftop", "landfill", "bess"] as Category[]).map(cat => (
+            <div key={cat} style={{ display: "flex", alignItems: "center", gap: 7 }}>
+              <div style={{ width: 9, height: 9, borderRadius: "50%", background: CAT_COLOR[cat] }} />
+              <span style={{ color: "var(--text-3)", fontSize: 11 }}>{CAT_LABEL[cat]}</span>
+            </div>
+          ))}
         </div>
 
         {/* Footer */}
-        <div style={{ marginTop: 28, textAlign: "center" }}>
+        <div style={{ marginTop: 24, textAlign: "center" }}>
           <p style={{ color: "var(--text-3)", fontSize: 12 }}>
             All projects publicly listed on{" "}
             <a href="https://www.coredevusa.com/company/projects/" target="_blank" rel="noopener noreferrer"
@@ -357,20 +316,18 @@ export default function Projects() {
         </div>
       </div>
 
-      {/* ── Floating tooltip ────────────────────────────────── */}
+      {/* Floating tooltip */}
       {tooltip && (
-        <div
-          style={{
-            position: "fixed",
-            left:  ttLeft,
-            top:   ttTop,
-            width: TOOLTIP_W,
-            zIndex: 9999,
-            pointerEvents: "none",
-            animation: "fadeUp 0.15s ease-out forwards",
-          }}
-        >
-          {/* Upward arrow caret */}
+        <div style={{
+          position: "fixed",
+          left: ttLeft,
+          top: ttTop,
+          width: TOOLTIP_W,
+          zIndex: 9999,
+          pointerEvents: "none",
+          animation: "fadeUp 0.15s ease-out forwards",
+        }}>
+          {/* Arrow */}
           <div style={{
             position: "absolute",
             top: -6, left: tooltip.x - ttLeft - 6,
@@ -381,7 +338,6 @@ export default function Projects() {
             transform: "rotate(45deg)",
             borderRadius: 2,
           }} />
-
           {/* Card */}
           <div style={{
             background: "var(--bg-card)",
@@ -391,7 +347,6 @@ export default function Projects() {
             padding: "16px 18px 18px",
             boxShadow: "var(--shadow-lg)",
           }}>
-            {/* Type badge + size on same row */}
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
               <span style={{
                 background: `${CAT_COLOR[tooltip.project.category]}18`,
@@ -409,7 +364,6 @@ export default function Projects() {
               </span>
             </div>
 
-            {/* Name */}
             <div style={{
               fontFamily: "var(--font-heading)", fontSize: 15, fontWeight: 700,
               color: "var(--text-1)", lineHeight: 1.25, marginBottom: 6,
@@ -417,7 +371,6 @@ export default function Projects() {
               {tooltip.project.name}
             </div>
 
-            {/* Location */}
             <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 10 }}>
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
                 stroke={CAT_COLOR[tooltip.project.category]} strokeWidth="2.5" strokeLinecap="round">
@@ -431,7 +384,6 @@ export default function Projects() {
 
             <div style={{ height: 1, background: "var(--border)", marginBottom: 10 }} />
 
-            {/* Description */}
             <p style={{ color: "var(--text-2)", fontSize: 12, lineHeight: 1.65, margin: 0 }}>
               {tooltip.project.description}
             </p>
