@@ -2,9 +2,10 @@
 import { useState, useEffect } from "react";
 import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps";
 
-// World landmasses (includes Caribbean islands) + US state borders overlaid
 const WORLD_GEO = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json";
 const US_GEO    = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
+
+const TOOLTIP_W = 288;
 
 type Category = "canopy" | "rooftop" | "landfill" | "bess";
 
@@ -133,7 +134,7 @@ const PROJECTS: Project[] = [
     size: "2 MW",
     type: "Rooftop Solar",
     category: "rooftop",
-    description: "10 Extra Space Storage rooftop solar installations across Tennessee. Managed concurrent permitting and construction across both sites.",
+    description: "10 Extra Space Storage rooftop solar installations across Tennessee. Managed concurrent permitting and construction across multiple sites.",
     sites: 10,
   },
   {
@@ -167,22 +168,32 @@ const PROJECTS: Project[] = [
   },
 ];
 
-function PinIcon({ color }: { color: string }) {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round">
-      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
-      <circle cx="12" cy="9" r="2.5"/>
-    </svg>
-  );
+interface TooltipState {
+  project: Project;
+  x: number;
+  y: number;
 }
 
 export default function Projects() {
-  const [active, setActive] = useState<string | null>(null);
-  const [mounted, setMounted] = useState(false);
+  const [tooltip,  setTooltip]  = useState<TooltipState | null>(null);
+  const [mounted,  setMounted]  = useState(false);
+  const [winW,     setWinW]     = useState(1280);
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    setMounted(true);
+    setWinW(window.innerWidth);
+    const onResize = () => setWinW(window.innerWidth);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
-  const activeProject = PROJECTS.find(p => p.name === active);
+  const active = tooltip?.project.name ?? null;
+
+  // Clamp tooltip so it never overflows the viewport
+  const ttLeft = tooltip
+    ? Math.max(8, Math.min(tooltip.x - TOOLTIP_W / 2, winW - TOOLTIP_W - 8))
+    : 0;
+  const ttTop  = tooltip ? tooltip.y + 18 : 0;
 
   return (
     <section id="projects" style={{ background: "var(--bg-page)", padding: "100px 0" }}>
@@ -204,276 +215,143 @@ export default function Projects() {
               style={{ color: "var(--accent)", textDecoration: "none", fontWeight: 600 }}>
               Core Development Group (Coredev USA)
             </a>
-            . Hover any pin to explore — Extra Space Storage shown by state.
+            . Hover any pin to explore project details.
           </p>
         </div>
 
-        {/* Map + sidebar */}
+        {/* Full-width map */}
         <div style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 340px",
-          gap: 24,
-          alignItems: "start",
+          background: "var(--bg-card)",
+          border: "1px solid var(--border)",
+          borderRadius: 16,
+          overflow: "hidden",
+          boxShadow: "var(--shadow-sm)",
         }}>
-
-          {/* ── Map ──────────────────────────────────────────── */}
-          <div style={{
-            background: "var(--bg-card)",
-            border: "1px solid var(--border)",
-            borderRadius: 16,
-            overflow: "hidden",
-            boxShadow: "var(--shadow-sm)",
-          }}>
-            {mounted ? (
-              <ComposableMap
-                projection="geoMercator"
-                projectionConfig={{ center: [-92, 28], scale: 650 }}
-                height={500}
-                style={{ width: "100%", height: "auto", display: "block" }}
-              >
-                {/* World landmasses — fills Caribbean islands */}
-                <Geographies geography={WORLD_GEO}>
-                  {({ geographies }) =>
-                    geographies.map(geo => (
-                      <Geography
-                        key={geo.rsmKey}
-                        geography={geo}
-                        fill="var(--bg-alt)"
-                        stroke="var(--border-strong)"
-                        strokeWidth={0.3}
-                        style={{
-                          default: { outline: "none" },
-                          hover:   { outline: "none" },
-                          pressed: { outline: "none" },
-                        }}
-                      />
-                    ))
-                  }
-                </Geographies>
-                {/* US state borders on top */}
-                <Geographies geography={US_GEO}>
-                  {({ geographies }) =>
-                    geographies.map(geo => (
-                      <Geography
-                        key={geo.rsmKey}
-                        geography={geo}
-                        fill="transparent"
-                        stroke="var(--border)"
-                        strokeWidth={0.5}
-                        style={{
-                          default: { outline: "none" },
-                          hover:   { outline: "none" },
-                          pressed: { outline: "none" },
-                        }}
-                      />
-                    ))
-                  }
-                </Geographies>
-
-                {PROJECTS.map(project => {
-                  const color    = CAT_COLOR[project.category];
-                  const isActive = active === project.name;
-                  return (
-                    <Marker
-                      key={project.name}
-                      coordinates={project.coords}
-                      onMouseEnter={() => setActive(project.name)}
-                      onMouseLeave={() => setActive(null)}
-                    >
-                      {/* Outer glow ring */}
-                      <circle
-                        r={isActive ? 22 : 14}
-                        fill={color}
-                        opacity={isActive ? 0.18 : 0.10}
-                        style={{ transition: "r 0.25s ease, opacity 0.25s ease" }}
-                      />
-                      {/* Mid ring */}
-                      <circle
-                        r={isActive ? 14 : 9}
-                        fill={color}
-                        opacity={isActive ? 0.30 : 0.18}
-                        style={{ transition: "r 0.25s ease" }}
-                      />
-                      {/* Core pin */}
-                      <circle
-                        r={isActive ? 7 : 5}
-                        fill={color}
-                        stroke="#FFFFFF"
-                        strokeWidth={isActive ? 2.5 : 1.5}
-                        style={{
-                          cursor: "pointer",
-                          transition: "r 0.2s ease",
-                          filter: isActive ? `drop-shadow(0 0 4px ${color})` : "none",
-                        }}
-                      />
-                      {/* Site count label for multi-site projects */}
-                      {project.sites && (
-                        <text
-                          y={isActive ? -26 : -19}
-                          textAnchor="middle"
-                          fill={color}
-                          style={{
-                            fontSize: 7, fontWeight: 700, letterSpacing: "0.10em",
-                            pointerEvents: "none", transition: "y 0.2s ease",
-                          }}
-                        >
-                          {project.sites} SITES
-                        </text>
-                      )}
-                    </Marker>
-                  );
-                })}
-              </ComposableMap>
-            ) : (
-              <div style={{ height: 480, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <span style={{ color: "var(--text-3)", fontSize: 13 }}>Loading map…</span>
-              </div>
-            )}
-
-            {/* Map legend */}
-            <div style={{
-              padding: "14px 20px",
-              borderTop: "1px solid var(--border)",
-              display: "flex", flexWrap: "wrap", gap: 20, alignItems: "center",
-            }}>
-              <span style={{ color: "var(--text-3)", fontSize: 9, fontWeight: 700, letterSpacing: "0.14em" }}>LEGEND</span>
-              {(["canopy", "rooftop", "landfill", "bess"] as Category[]).map(cat => (
-                <div key={cat} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                  <div style={{ width: 8, height: 8, borderRadius: "50%", background: CAT_COLOR[cat] }} />
-                  <span style={{ color: "var(--text-3)", fontSize: 11 }}>{CAT_LABEL[cat]}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* ── Sidebar ──────────────────────────────────────── */}
-          <div style={{ position: "sticky", top: 90, display: "flex", flexDirection: "column", gap: 12 }}>
-
-            {/* Detail card */}
-            {activeProject ? (
-              <div
-                key={activeProject.name}
-                style={{
-                  background: "var(--bg-card)",
-                  border: "1px solid var(--border)",
-                  borderTop: `3px solid ${CAT_COLOR[activeProject.category]}`,
-                  borderRadius: 12,
-                  padding: "26px 22px",
-                  boxShadow: "var(--shadow-md)",
-                  animation: "fadeUp 0.2s ease-out forwards",
-                }}
-              >
-                <span style={{
-                  display: "inline-block",
-                  background: `${CAT_COLOR[activeProject.category]}18`,
-                  color: CAT_COLOR[activeProject.category],
-                  fontSize: 9, fontWeight: 800, letterSpacing: "0.14em",
-                  padding: "4px 10px", borderRadius: 4, marginBottom: 14,
-                }}>
-                  {activeProject.type.toUpperCase()}
-                </span>
-
-                <h3 style={{
-                  fontFamily: "var(--font-heading)", fontSize: 17, fontWeight: 700,
-                  color: "var(--text-1)", lineHeight: 1.25, marginBottom: 10,
-                }}>
-                  {activeProject.name}
-                </h3>
-
-                <div style={{
-                  fontFamily: "var(--font-heading)", fontSize: 30, fontWeight: 800,
-                  color: CAT_COLOR[activeProject.category], lineHeight: 1, marginBottom: 14,
-                }}>
-                  {activeProject.size}
-                </div>
-
-                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 18 }}>
-                  <PinIcon color={CAT_COLOR[activeProject.category]} />
-                  <span style={{ color: "var(--text-2)", fontSize: 13, fontWeight: 500 }}>
-                    {activeProject.location}
-                  </span>
-                </div>
-
-                <div style={{ height: 1, background: "var(--border)", marginBottom: 16 }} />
-
-                <p style={{ color: "var(--text-2)", fontSize: 13, lineHeight: 1.75, margin: 0 }}>
-                  {activeProject.description}
-                </p>
-              </div>
-            ) : (
-              <div style={{
-                background: "var(--bg-card)",
-                border: "1px solid var(--border)",
-                borderRadius: 12,
-                padding: "22px 20px",
-              }}>
-                <div style={{ color: "var(--text-3)", fontSize: 9, fontWeight: 700, letterSpacing: "0.16em", marginBottom: 14 }}>
-                  SELECT A PROJECT
-                </div>
-                <p style={{ color: "var(--text-3)", fontSize: 13, lineHeight: 1.65, margin: 0 }}>
-                  Hover any pin on the map to explore project details.
-                </p>
-              </div>
-            )}
-
-            {/* Project list */}
-            <div style={{
-              background: "var(--bg-card)",
-              border: "1px solid var(--border)",
-              borderRadius: 12,
-              overflow: "hidden",
-            }}>
-              <div style={{ padding: "14px 18px 10px", borderBottom: "1px solid var(--border)" }}>
-                <span style={{ color: "var(--text-3)", fontSize: 9, fontWeight: 700, letterSpacing: "0.14em" }}>
-                  {PROJECTS.length} PROJECTS ON MAP
-                </span>
-              </div>
-              <div style={{ maxHeight: 320, overflowY: "auto" }}>
-                {PROJECTS.map(p => {
-                  const isActive = active === p.name;
-                  return (
-                    <div
-                      key={p.name}
-                      onMouseEnter={() => setActive(p.name)}
-                      onMouseLeave={() => setActive(null)}
+          {mounted ? (
+            <ComposableMap
+              projection="geoMercator"
+              projectionConfig={{ center: [-92, 28], scale: 650 }}
+              height={500}
+              style={{ width: "100%", height: "auto", display: "block" }}
+            >
+              {/* World landmasses */}
+              <Geographies geography={WORLD_GEO}>
+                {({ geographies }) =>
+                  geographies.map(geo => (
+                    <Geography
+                      key={geo.rsmKey}
+                      geography={geo}
+                      fill="var(--bg-alt)"
+                      stroke="var(--border-strong)"
+                      strokeWidth={0.3}
                       style={{
-                        display: "flex", alignItems: "center", gap: 10,
-                        padding: "10px 18px",
-                        background: isActive ? `${CAT_COLOR[p.category]}10` : "transparent",
-                        borderLeft: isActive ? `3px solid ${CAT_COLOR[p.category]}` : "3px solid transparent",
-                        cursor: "default",
-                        transition: "all 0.18s ease",
+                        default: { outline: "none" },
+                        hover:   { outline: "none" },
+                        pressed: { outline: "none" },
                       }}
-                    >
-                      <div style={{
-                        width: 7, height: 7, borderRadius: "50%",
-                        background: CAT_COLOR[p.category], flexShrink: 0,
-                        boxShadow: isActive ? `0 0 6px ${CAT_COLOR[p.category]}` : "none",
-                        transition: "box-shadow 0.2s ease",
-                      }} />
-                      <div style={{ minWidth: 0 }}>
-                        <div style={{
-                          color: isActive ? "var(--text-1)" : "var(--text-2)",
-                          fontSize: 12, fontWeight: 600,
-                          whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                          transition: "color 0.18s ease",
-                        }}>
-                          {p.name}
-                        </div>
-                        <div style={{ color: "var(--text-3)", fontSize: 10 }}>
-                          {p.location} · {p.size}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+                    />
+                  ))
+                }
+              </Geographies>
+
+              {/* US state borders */}
+              <Geographies geography={US_GEO}>
+                {({ geographies }) =>
+                  geographies.map(geo => (
+                    <Geography
+                      key={geo.rsmKey}
+                      geography={geo}
+                      fill="transparent"
+                      stroke="var(--border)"
+                      strokeWidth={0.5}
+                      style={{
+                        default: { outline: "none" },
+                        hover:   { outline: "none" },
+                        pressed: { outline: "none" },
+                      }}
+                    />
+                  ))
+                }
+              </Geographies>
+
+              {/* Project pins */}
+              {PROJECTS.map(project => {
+                const color    = CAT_COLOR[project.category];
+                const isActive = active === project.name;
+                return (
+                  <Marker
+                    key={project.name}
+                    coordinates={project.coords}
+                    onMouseEnter={(e) => setTooltip({ project, x: (e as unknown as MouseEvent).clientX, y: (e as unknown as MouseEvent).clientY })}
+                    onMouseMove={(e)  => setTooltip(t => t?.project.name === project.name ? { ...t, x: (e as unknown as MouseEvent).clientX, y: (e as unknown as MouseEvent).clientY } : t)}
+                    onMouseLeave={()  => setTooltip(null)}
+                  >
+                    {/* Outer glow */}
+                    <circle r={isActive ? 22 : 14} fill={color}
+                      opacity={isActive ? 0.18 : 0.10}
+                      style={{ transition: "r 0.22s ease, opacity 0.22s ease" }}
+                    />
+                    {/* Mid ring */}
+                    <circle r={isActive ? 14 : 9} fill={color}
+                      opacity={isActive ? 0.30 : 0.18}
+                      style={{ transition: "r 0.22s ease" }}
+                    />
+                    {/* Core dot */}
+                    <circle
+                      r={isActive ? 7 : 5}
+                      fill={color}
+                      stroke="#FFFFFF"
+                      strokeWidth={isActive ? 2.5 : 1.5}
+                      style={{
+                        cursor: "pointer",
+                        transition: "r 0.18s ease",
+                        filter: isActive ? `drop-shadow(0 0 5px ${color})` : "none",
+                      }}
+                    />
+                    {/* Site count */}
+                    {project.sites && (
+                      <text
+                        y={isActive ? -26 : -18}
+                        textAnchor="middle"
+                        fill={color}
+                        style={{ fontSize: 7, fontWeight: 700, letterSpacing: "0.10em", pointerEvents: "none" }}
+                      >
+                        {project.sites} SITES
+                      </text>
+                    )}
+                  </Marker>
+                );
+              })}
+            </ComposableMap>
+          ) : (
+            <div style={{ height: 480, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ color: "var(--text-3)", fontSize: 13 }}>Loading map…</span>
             </div>
+          )}
+
+          {/* Legend */}
+          <div style={{
+            padding: "13px 24px",
+            borderTop: "1px solid var(--border)",
+            display: "flex", flexWrap: "wrap", gap: 24, alignItems: "center",
+          }}>
+            <span style={{ color: "var(--text-3)", fontSize: 9, fontWeight: 700, letterSpacing: "0.14em" }}>
+              LEGEND
+            </span>
+            {(["canopy", "rooftop", "landfill", "bess"] as Category[]).map(cat => (
+              <div key={cat} style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                <div style={{ width: 9, height: 9, borderRadius: "50%", background: CAT_COLOR[cat] }} />
+                <span style={{ color: "var(--text-3)", fontSize: 11 }}>{CAT_LABEL[cat]}</span>
+              </div>
+            ))}
+            <span style={{ marginLeft: "auto", color: "var(--text-3)", fontSize: 11 }}>
+              {PROJECTS.length} projects · hover pins to explore
+            </span>
           </div>
         </div>
 
-        {/* Footer note */}
-        <div style={{ marginTop: 32, textAlign: "center" }}>
+        {/* Footer */}
+        <div style={{ marginTop: 28, textAlign: "center" }}>
           <p style={{ color: "var(--text-3)", fontSize: 12 }}>
             All projects publicly listed on{" "}
             <a href="https://www.coredevusa.com/company/projects/" target="_blank" rel="noopener noreferrer"
@@ -483,8 +361,89 @@ export default function Projects() {
             . Included with attribution as part of personal project management portfolio.
           </p>
         </div>
-
       </div>
+
+      {/* ── Floating tooltip ────────────────────────────────── */}
+      {tooltip && (
+        <div
+          style={{
+            position: "fixed",
+            left:  ttLeft,
+            top:   ttTop,
+            width: TOOLTIP_W,
+            zIndex: 9999,
+            pointerEvents: "none",
+            animation: "fadeUp 0.15s ease-out forwards",
+          }}
+        >
+          {/* Upward arrow caret */}
+          <div style={{
+            position: "absolute",
+            top: -6, left: tooltip.x - ttLeft - 6,
+            width: 12, height: 12,
+            background: "var(--bg-card)",
+            borderTop: "1px solid var(--border)",
+            borderLeft: "1px solid var(--border)",
+            transform: "rotate(45deg)",
+            borderRadius: 2,
+          }} />
+
+          {/* Card */}
+          <div style={{
+            background: "var(--bg-card)",
+            border: "1px solid var(--border)",
+            borderTop: `3px solid ${CAT_COLOR[tooltip.project.category]}`,
+            borderRadius: 10,
+            padding: "16px 18px 18px",
+            boxShadow: "var(--shadow-lg)",
+          }}>
+            {/* Type badge + size on same row */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+              <span style={{
+                background: `${CAT_COLOR[tooltip.project.category]}18`,
+                color: CAT_COLOR[tooltip.project.category],
+                fontSize: 9, fontWeight: 800, letterSpacing: "0.13em",
+                padding: "3px 8px", borderRadius: 4,
+              }}>
+                {tooltip.project.type.toUpperCase()}
+              </span>
+              <span style={{
+                fontFamily: "var(--font-heading)", fontSize: 18, fontWeight: 800,
+                color: CAT_COLOR[tooltip.project.category], lineHeight: 1,
+              }}>
+                {tooltip.project.size}
+              </span>
+            </div>
+
+            {/* Name */}
+            <div style={{
+              fontFamily: "var(--font-heading)", fontSize: 15, fontWeight: 700,
+              color: "var(--text-1)", lineHeight: 1.25, marginBottom: 6,
+            }}>
+              {tooltip.project.name}
+            </div>
+
+            {/* Location */}
+            <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 10 }}>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+                stroke={CAT_COLOR[tooltip.project.category]} strokeWidth="2.5" strokeLinecap="round">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+                <circle cx="12" cy="9" r="2.5"/>
+              </svg>
+              <span style={{ color: "var(--text-2)", fontSize: 12, fontWeight: 500 }}>
+                {tooltip.project.location}
+              </span>
+            </div>
+
+            <div style={{ height: 1, background: "var(--border)", marginBottom: 10 }} />
+
+            {/* Description */}
+            <p style={{ color: "var(--text-2)", fontSize: 12, lineHeight: 1.65, margin: 0 }}>
+              {tooltip.project.description}
+            </p>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
