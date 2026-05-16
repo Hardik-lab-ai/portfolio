@@ -3,37 +3,37 @@
 
 /* ===================== THEME VARIABLES ===================== */
 :root {
-  /* ── Clean premium light palette ── */
-  --bg-page:          #FAFAF8;          /* near-pure white, slight warmth */
-  --bg-alt:           #F2F1EC;          /* warm parchment for alternating sections */
+  /* ── Pale Mint / Slate / Deep Forest Green palette ── */
+  --bg-page:          #EAF7F0;          /* Pale Mint */
+  --bg-alt:           #D9F0E4;          /* slightly deeper mint for alternating sections */
   --bg-card:          #FFFFFF;
-  --text-1:           #0B0B0A;          /* near-black */
-  --text-2:           #3D3A36;          /* warm dark gray */
-  --text-3:           #7C7872;          /* muted warm gray */
-  --text-4:           #0B0B0A;
-  --accent:           #1E47A8;          /* premium deep navy-blue */
-  --accent-hover:     #183DA0;
-  --accent-light:     rgba(30,71,168,0.08);
-  --accent-2:         #C16820;          /* warm amber-copper (sun / energy) */
-  --accent-2-light:   rgba(193,104,32,0.08);
-  --border:           #E5E3DC;          /* warm tan border */
-  --border-strong:    #CEC9BE;
-  --shadow-sm:        0 1px 2px rgba(11,11,10,0.05), 0 1px 5px rgba(11,11,10,0.04);
-  --shadow-md:        0 3px 14px rgba(11,11,10,0.08), 0 1px 5px rgba(11,11,10,0.04);
-  --shadow-lg:        0 10px 36px rgba(11,11,10,0.11), 0 3px 12px rgba(11,11,10,0.06);
-  --nav-bg:           rgba(250,250,248,0.97);
-  --nav-border:       #E5E3DC;
-  --hero-panel:       #050A14;          /* deep night-sky navy */
+  --text-1:           #34495E;          /* Slate */
+  --text-2:           #4E6478;          /* medium slate */
+  --text-3:           #82A0B0;          /* muted slate-teal */
+  --text-4:           #34495E;
+  --accent:           #1E6F3D;          /* Deep Forest Green */
+  --accent-hover:     #175E33;
+  --accent-light:     rgba(30,111,61,0.10);
+  --accent-2:         #C47B20;          /* warm amber — complementary to forest green */
+  --accent-2-light:   rgba(196,123,32,0.09);
+  --border:           #BDDECE;          /* soft mint border */
+  --border-strong:    #9DCAAF;
+  --shadow-sm:        0 1px 2px rgba(30,111,61,0.06), 0 1px 5px rgba(30,111,61,0.04);
+  --shadow-md:        0 3px 14px rgba(30,111,61,0.09), 0 1px 5px rgba(30,111,61,0.04);
+  --shadow-lg:        0 10px 36px rgba(30,111,61,0.12), 0 3px 12px rgba(30,111,61,0.06);
+  --nav-bg:           rgba(234,247,240,0.97);
+  --nav-border:       #BDDECE;
+  --hero-panel:       #0A2416;          /* deep forest night */
   --hero-card-bg:     rgba(255,255,255,0.06);
   --hero-card-border: rgba(255,255,255,0.11);
   --hero-muted:       rgba(255,255,255,0.50);
-  --footer-bg:        #050A14;
+  --footer-bg:        #0A2416;
   --footer-muted:     rgba(255,255,255,0.36);
   --footer-border:    rgba(255,255,255,0.08);
-  --scrollbar-bg:     #E5E3DC;
-  --scrollbar-thumb:  #CEC9BE;
-  --chip-bg:          #F2F1EC;
-  --chip-border:      #E5E3DC;
+  --scrollbar-bg:     #BDDECE;
+  --scrollbar-thumb:  #9DCAAF;
+  --chip-bg:          #D9F0E4;
+  --chip-border:      #BDDECE;
 }
 
 /* ===================== FONT THEME ===================== */
@@ -160,7 +160,7 @@ body { background: var(--bg-page); color: var(--text-1); }
 .btn-primary:hover {
   background: var(--accent-hover);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(30,71,168,0.30);
+  box-shadow: 0 6px 20px rgba(30,111,61,0.30);
 }
 .btn-primary:active { transform: translateY(0); }
 

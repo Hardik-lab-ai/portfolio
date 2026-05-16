@@ -172,7 +172,7 @@ export default function Experience() {
           <div style={{
             position: "absolute", left: "50%", bottom: -8, transform: "translateX(-50%)",
             width: 8, height: 8, borderRadius: "50%",
-            background: "var(--accent)", boxShadow: "0 0 12px rgba(30,71,168,0.40)",
+            background: "var(--accent)", boxShadow: "0 0 12px rgba(30,111,61,0.40)",
           }} />
         </div>
       </div>
