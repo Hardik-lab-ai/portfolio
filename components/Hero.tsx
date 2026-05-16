@@ -186,7 +186,7 @@ export default function Hero() {
         <div style={{
           position: "absolute", top: "-10%", right: "-10%",
           width: 380, height: 380, borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(0,245,255,0.22) 0%, transparent 70%)",
+          background: "radial-gradient(circle, rgba(0,206,209,0.22) 0%, transparent 70%)",
           filter: "blur(80px)", pointerEvents: "none",
           animation: "blobFloat1 9s ease-in-out infinite",
         }} />
@@ -260,7 +260,7 @@ export default function Hero() {
                   }}
                   onMouseEnter={e => {
                     const el = e.currentTarget as HTMLSpanElement;
-                    el.style.background = "rgba(0,245,255,0.22)";
+                    el.style.background = "rgba(0,206,209,0.22)";
                     el.style.color = "rgba(255,255,255,0.88)";
                   }}
                   onMouseLeave={e => {

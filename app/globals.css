@@ -11,9 +11,9 @@
   --text-2:           #4A5C6E;          /* medium graphite */
   --text-3:           #8A9AB0;          /* muted slate */
   --text-4:           #2C3E50;
-  --accent:           #00F5FF;          /* Cyan */
-  --accent-hover:     #00DDEE;
-  --accent-light:     rgba(0,245,255,0.09);
+  --accent:           #00CED1;          /* Dark Turquoise */
+  --accent-hover:     #00B8BB;
+  --accent-light:     rgba(0,206,209,0.09);
   --accent-2:         #E8622A;          /* vivid orange — high-energy complement */
   --accent-2-light:   rgba(232,98,42,0.09);
   --border:           #E2E8F0;          /* clean cool-gray border */
@@ -160,7 +160,7 @@ body { background: var(--bg-page); color: var(--text-1); }
 .btn-primary:hover {
   background: var(--accent-hover);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0,245,255,0.28);
+  box-shadow: 0 6px 20px rgba(0,206,209,0.28);
 }
 .btn-primary:active { transform: translateY(0); }
 
