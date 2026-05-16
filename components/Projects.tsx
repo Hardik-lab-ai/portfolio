@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps";
-import { AnimatePresence, motion, useInView } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 
 const WORLD_GEO = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json";
 const US_GEO    = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
@@ -167,9 +167,6 @@ const PROJECTS: Project[] = [
   },
 ];
 
-// Flight route: east-to-west across the US, ending at Caribbean
-// Index into PROJECTS array
-const FLIGHT_ROUTE = [1, 0, 2, 4, 3, 5, 9, 8, 11, 10, 12, 6, 7, 13];
 
 // State abbreviations at approximate centroids
 const STATE_LABELS: { abbr: string; coords: [number, number] }[] = [
@@ -245,30 +242,19 @@ function mercatorXY(lng: number, lat: number): [number, number] {
 }
 
 const PROJECT_SVG: [number, number][] = PROJECTS.map(p => mercatorXY(p.coords[0], p.coords[1]));
-const ROUTE_SVG: [number, number][] = FLIGHT_ROUTE.map(i => PROJECT_SVG[i]);
 
-// Jersey City home base — plane departs from here
+// Jersey City home base
 const JC_COORDS: [number, number] = [-74.077, 40.728];
 const JC_SVG = mercatorXY(JC_COORDS[0], JC_COORDS[1]);
-// Full ghost path: JC → every stop in route order
-const FULL_PATH_SVG: [number, number][] = [JC_SVG, ...ROUTE_SVG];
-const FULL_PATH_STR = FULL_PATH_SVG.map(([x, y]) => `${x},${y}`).join(" ");
 
 export default function Projects() {
-  const [mounted,     setMounted]     = useState(false);
-  const [step,        setStep]        = useState(-1);       // which route stop plane is at
-  const [phase,       setPhase]       = useState<"idle"|"flying"|"landed">("idle");
-  const [visitedIdxs, setVisitedIdxs] = useState<number[]>([]); // project indices visited
-  const [hoveredIdx,  setHoveredIdx]  = useState<number | null>(null);
-  const [tooltip,     setTooltip]     = useState<{project: Project; x: number; y: number} | null>(null);
-  const [winW,        setWinW]        = useState(1280);
-  const sectionRef  = useRef<HTMLElement>(null);
-  const headerRef   = useRef(null);
+  const [mounted,    setMounted]    = useState(false);
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const [tooltip,    setTooltip]    = useState<{project: Project; x: number; y: number} | null>(null);
+  const [winW,       setWinW]       = useState(1280);
+  const sectionRef = useRef<HTMLElement>(null);
+  const headerRef  = useRef(null);
   const headerInView = useInView(headerRef, { once: true, margin: "-50px" });
-  const stepRef     = useRef(step);
-  const phaseRef   = useRef(phase);
-  stepRef.current  = step;
-  phaseRef.current = phase;
 
   useEffect(() => {
     setMounted(true);
@@ -278,71 +264,10 @@ export default function Projects() {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // Start animation when section scrolls into view
-  useEffect(() => {
-    if (!mounted) return;
-    const el = sectionRef.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && phaseRef.current === "idle") {
-          startFlight();
-        }
-      },
-      { threshold: 0.3 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [mounted]);
-
-  function startFlight() {
-    setStep(0);
-    setPhase("flying");
-    setVisitedIdxs([]);
-  }
-
-  // Advance the flight: fly → land → pause → fly again
-  useEffect(() => {
-    if (step < 0 || phase === "idle") return;
-    if (phase === "flying") {
-      // After fly duration (1600ms), land
-      const t = setTimeout(() => {
-        setPhase("landed");
-        setVisitedIdxs(prev => [...prev, FLIGHT_ROUTE[step]]);
-      }, 1700);
-      return () => clearTimeout(t);
-    }
-    if (phase === "landed") {
-      // Pause at location, then fly to next
-      const t = setTimeout(() => {
-        if (step < FLIGHT_ROUTE.length - 1) {
-          setStep(s => s + 1);
-          setPhase("flying");
-        } else {
-          // Loop back — clear trail and restart from the west coast
-          setVisitedIdxs([]);
-          setStep(0);
-          setPhase("flying");
-        }
-      }, 2200);
-      return () => clearTimeout(t);
-    }
-  }, [step, phase]);
-
-
-  // Current landed project
-  const landedProject = phase === "landed" ? PROJECTS[FLIGHT_ROUTE[step]] : null;
-
   // Tooltip width
   const TOOLTIP_W = 272;
   const ttLeft = tooltip ? Math.max(8, Math.min(tooltip.x - TOOLTIP_W / 2, winW - TOOLTIP_W - 8)) : 0;
   const ttTop  = tooltip ? tooltip.y + 18 : 0;
-
-  // Visited trail: JC → each landed stop in order
-  const trailPoints = visitedIdxs.length > 0
-    ? [JC_SVG, ...visitedIdxs.map(i => PROJECT_SVG[i])]
-    : [];
-  const trailStr = trailPoints.map(([x, y]) => `${x},${y}`).join(" ");
 
   return (
     <section id="projects" ref={sectionRef} style={{ background: "var(--bg-page)", padding: "100px 0" }}>
@@ -438,29 +363,22 @@ export default function Projects() {
                   </Marker>
                 ))}
 
-                {/* Ghost full-route path — always visible */}
-                <polyline
-                  points={FULL_PATH_STR}
-                  fill="none"
-                  stroke="var(--text-3)"
-                  strokeWidth={1}
-                  strokeDasharray="4,5"
-                  opacity={0.30}
-                  style={{ pointerEvents: "none" }}
-                />
-
-                {/* Visited trail overlay — brighter */}
-                {trailPoints.length >= 2 && (
-                  <polyline
-                    points={trailStr}
-                    fill="none"
-                    stroke="var(--accent)"
-                    strokeWidth={1.5}
-                    strokeDasharray="3,4"
-                    opacity={0.70}
-                    style={{ pointerEvents: "none" }}
-                  />
-                )}
+                {/* Direct lines from Jersey City to every project */}
+                {PROJECTS.map((project, idx) => {
+                  const [x2, y2] = PROJECT_SVG[idx];
+                  const [x1, y1] = JC_SVG;
+                  return (
+                    <line
+                      key={project.name + "-line"}
+                      x1={x1} y1={y1} x2={x2} y2={y2}
+                      stroke="var(--accent)"
+                      strokeWidth={0.8}
+                      strokeDasharray="3,5"
+                      opacity={hoveredIdx === idx ? 0.80 : 0.35}
+                      style={{ pointerEvents: "none", transition: "opacity 0.2s ease" }}
+                    />
+                  );
+                })}
 
                 {/* Jersey City home-base marker */}
                 <Marker coordinates={JC_COORDS}>
@@ -479,8 +397,6 @@ export default function Projects() {
                 {PROJECTS.map((project, idx) => {
                   const color     = CAT_COLOR[project.category];
                   const isHovered = hoveredIdx === idx;
-                  const isVisited = visitedIdxs.includes(idx);
-                  const isLanding = phase === "landed" && FLIGHT_ROUTE[step] === idx;
                   return (
                     <Marker
                       key={project.name}
@@ -492,32 +408,26 @@ export default function Projects() {
                       onMouseMove={e => setTooltip(t => t ? { ...t, x: (e as unknown as MouseEvent).clientX, y: (e as unknown as MouseEvent).clientY } : t)}
                       onMouseLeave={() => { setHoveredIdx(null); setTooltip(null); }}
                     >
-                      {/* Pulse ring on landing */}
-                      {isLanding && (
-                        <circle r={14} fill={color} opacity={0} style={{
-                          animation: "landPulse 1s ease-out forwards",
-                        }} />
-                      )}
                       {/* Glow */}
                       <circle r={isHovered ? 11 : 7} fill={color}
-                        opacity={isHovered ? 0.18 : isVisited ? 0.14 : 0.08}
+                        opacity={isHovered ? 0.22 : 0.12}
                         style={{ transition: "r 0.22s ease, opacity 0.3s ease" }}
                       />
                       {/* Mid ring */}
                       <circle r={isHovered ? 7 : 4.5} fill={color}
-                        opacity={isHovered ? 0.30 : isVisited ? 0.24 : 0.14}
+                        opacity={isHovered ? 0.35 : 0.20}
                         style={{ transition: "r 0.22s ease" }}
                       />
                       {/* Core dot */}
                       <circle
                         r={isHovered ? 3.5 : 2.5}
-                        fill={isVisited ? color : "var(--text-3)"}
+                        fill={color}
                         stroke="#FFFFFF"
                         strokeWidth={isHovered ? 1.5 : 1}
                         style={{
                           cursor: "pointer",
-                          transition: "r 0.18s ease, fill 0.4s ease",
-                          filter: isHovered ? `drop-shadow(0 0 3px ${color})` : "none",
+                          transition: "r 0.18s ease",
+                          filter: isHovered ? `drop-shadow(0 0 4px ${color})` : "none",
                         }}
                       />
                     </Marker>
@@ -527,70 +437,6 @@ export default function Projects() {
               </ComposableMap>
 
 
-              {/* Landing card — positioned absolutely over the map */}
-              <AnimatePresence>
-                {landedProject && (() => {
-                  const [px, py] = PROJECT_SVG[FLIGHT_ROUTE[step]];
-                  // The map SVG is 800×500 internal units; actual rendered width is 100% of container
-                  // We use percentage positioning
-                  const pctX = (px / 800) * 100;
-                  const pctY = (py / 500) * 100;
-                  const flipLeft = pctX > 60;
-                  const flipUp   = pctY > 55;
-                  const color = CAT_COLOR[landedProject.category];
-                  return (
-                    <motion.div
-                      key={landedProject.name}
-                      initial={{ opacity: 0, scale: 0.88, y: flipUp ? 8 : -8 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                      style={{
-                        position: "absolute",
-                        left:  flipLeft ? "auto" : `calc(${pctX}% + 14px)`,
-                        right: flipLeft ? `calc(${100 - pctX}% + 14px)` : "auto",
-                        top:   flipUp   ? "auto" : `calc(${pctY}% + 10px)`,
-                        bottom:flipUp   ? `calc(${100 - pctY}% + 10px)` : "auto",
-                        width: 210,
-                        zIndex: 20,
-                        pointerEvents: "none",
-                      }}
-                    >
-                      <div style={{
-                        background: "var(--bg-card)",
-                        border: "1px solid var(--border)",
-                        borderTop: `3px solid ${color}`,
-                        borderRadius: 10,
-                        padding: "13px 15px 14px",
-                        boxShadow: "var(--shadow-lg)",
-                      }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 7 }}>
-                          <span style={{
-                            background: `${color}18`, color,
-                            fontSize: 8.5, fontWeight: 800, letterSpacing: "0.12em",
-                            padding: "2px 7px", borderRadius: 4,
-                          }}>
-                            {landedProject.type.toUpperCase()}
-                          </span>
-                          <span style={{ fontFamily: "var(--font-heading)", fontSize: 15, fontWeight: 800, color, lineHeight: 1 }}>
-                            {landedProject.size}
-                          </span>
-                        </div>
-                        <div style={{ fontFamily: "var(--font-heading)", fontSize: 13, fontWeight: 700, color: "var(--text-1)", lineHeight: 1.3, marginBottom: 5 }}>
-                          {landedProject.name}
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round">
-                            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
-                            <circle cx="12" cy="9" r="2.5"/>
-                          </svg>
-                          <span style={{ color: "var(--text-3)", fontSize: 11 }}>{landedProject.location}</span>
-                        </div>
-                      </div>
-                    </motion.div>
-                  );
-                })()}
-              </AnimatePresence>
             </div>
           ) : (
             <div style={{ height: 480, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -613,19 +459,6 @@ export default function Projects() {
                 </div>
               ))}
             </div>
-            <button
-              onClick={() => { setStep(-1); setPhase("idle"); setVisitedIdxs([]); setTimeout(startFlight, 80); }}
-              style={{
-                background: "transparent", border: "1px solid var(--border)",
-                borderRadius: 6, padding: "5px 12px", fontSize: 11, fontWeight: 600,
-                color: "var(--text-3)", cursor: "pointer", letterSpacing: "0.02em",
-                transition: "all 0.2s ease",
-              }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--accent)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--accent)"; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--border)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--text-3)"; }}
-            >
-              ↺ Replay Tour
-            </button>
           </div>
         </div>
 
