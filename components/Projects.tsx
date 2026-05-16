@@ -310,7 +310,10 @@ export default function Projects() {
           setStep(s => s + 1);
           setPhase("flying");
         } else {
-          setPhase("idle");
+          // Loop back — clear trail and restart from the west coast
+          setVisitedIdxs([]);
+          setStep(0);
+          setPhase("flying");
         }
       }, 2200);
       return () => clearTimeout(t);
