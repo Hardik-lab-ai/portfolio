@@ -167,9 +167,9 @@ const PROJECTS: Project[] = [
   },
 ];
 
-// Flight route: west-to-east across the US, ending at Caribbean
+// Flight route: east-to-west across the US, ending at Caribbean
 // Index into PROJECTS array
-const FLIGHT_ROUTE = [6, 7, 12, 10, 11, 8, 9, 5, 3, 4, 2, 1, 0, 13];
+const FLIGHT_ROUTE = [1, 0, 2, 4, 3, 5, 9, 8, 11, 10, 12, 6, 7, 13];
 
 // State abbreviations at approximate centroids
 const STATE_LABELS: { abbr: string; coords: [number, number] }[] = [
