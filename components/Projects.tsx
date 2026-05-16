@@ -492,7 +492,7 @@ export default function Projects() {
 
               </ComposableMap>
 
-              {/* Video airplane — absolutely positioned over the map */}
+              {/* Airplane image — absolutely positioned over the map */}
               {step >= 0 && (
                 <div
                   style={{
@@ -507,18 +507,18 @@ export default function Projects() {
                     zIndex: 15,
                   }}
                 >
-                  <video
-                    src="/airplane.webm"
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
+                  {/* Image nose points up → offset rotation by +90° so 0° = facing right */}
+                  <img
+                    src="/airplane.jpg"
+                    alt=""
                     style={{
-                      width: 64,
+                      width: phase === "landed" ? 28 : 58,
                       height: "auto",
                       display: "block",
-                      transform: `rotate(${planeAngle}deg)`,
-                      transition: "transform 0.35s ease",
+                      transform: `rotate(${planeAngle + 90}deg)`,
+                      transition: "width 0.55s cubic-bezier(0.34,1.56,0.64,1), transform 0.35s ease",
+                      mixBlendMode: "multiply",
+                      filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.22))",
                     }}
                   />
                 </div>
