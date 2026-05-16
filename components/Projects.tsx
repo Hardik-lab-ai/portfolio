@@ -487,30 +487,39 @@ export default function Projects() {
                   );
                 })}
 
-                {/* Airplane */}
-                {step >= 0 && (
-                  <g
-                    style={{
-                      transform: `translate(${planePos[0]}px, ${planePos[1]}px) rotate(${planeAngle}deg)`,
-                      transition: phase === "flying" ? "transform 1.6s cubic-bezier(0.45,0,0.55,1)" : "none",
-                    }}
-                  >
-                    {/* Plane silhouette — pointing right (+x) */}
-                    <g transform="translate(-8,-5) scale(0.9)">
-                      <path
-                        d="M16 5 L2 8 L0 6 L2 5 L0 4 L2 3 L16 5 Z"
-                        fill="#1A1714"
-                        opacity={0.85}
-                      />
-                      <path d="M10 5 L6 2 L5 3 L8 5 Z" fill="#1A1714" opacity={0.7} />
-                      <path d="M10 5 L6 8 L5 7 L8 5 Z" fill="#1A1714" opacity={0.7} />
-                      <path d="M5 5 L3 3.5 L2.5 4 L4 5 Z" fill="#1A1714" opacity={0.6} />
-                      <path d="M5 5 L3 6.5 L2.5 6 L4 5 Z" fill="#1A1714" opacity={0.6} />
-                    </g>
-                  </g>
-                )}
-
               </ComposableMap>
+
+              {/* Video airplane — absolutely positioned over the map */}
+              {step >= 0 && (
+                <div
+                  style={{
+                    position: "absolute",
+                    left: `${(planePos[0] / 800) * 100}%`,
+                    top: `${(planePos[1] / 500) * 100}%`,
+                    transform: "translate(-50%, -50%)",
+                    transition: phase === "flying"
+                      ? "left 1.6s cubic-bezier(0.45,0,0.55,1), top 1.6s cubic-bezier(0.45,0,0.55,1)"
+                      : "none",
+                    pointerEvents: "none",
+                    zIndex: 15,
+                  }}
+                >
+                  <video
+                    src="/airplane.webm"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    style={{
+                      width: 64,
+                      height: "auto",
+                      display: "block",
+                      transform: `rotate(${planeAngle}deg)`,
+                      transition: "transform 0.35s ease",
+                    }}
+                  />
+                </div>
+              )}
 
               {/* Landing card — positioned absolutely over the map */}
               <AnimatePresence>
