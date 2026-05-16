@@ -247,6 +247,13 @@ function mercatorXY(lng: number, lat: number): [number, number] {
 const PROJECT_SVG: [number, number][] = PROJECTS.map(p => mercatorXY(p.coords[0], p.coords[1]));
 const ROUTE_SVG: [number, number][] = FLIGHT_ROUTE.map(i => PROJECT_SVG[i]);
 
+// Jersey City home base — plane departs from here
+const JC_COORDS: [number, number] = [-74.077, 40.728];
+const JC_SVG = mercatorXY(JC_COORDS[0], JC_COORDS[1]);
+// Full ghost path: JC → every stop in route order
+const FULL_PATH_SVG: [number, number][] = [JC_SVG, ...ROUTE_SVG];
+const FULL_PATH_STR = FULL_PATH_SVG.map(([x, y]) => `${x},${y}`).join(" ");
+
 export default function Projects() {
   const [mounted,     setMounted]     = useState(false);
   const [step,        setStep]        = useState(-1);       // which route stop plane is at
@@ -322,8 +329,8 @@ export default function Projects() {
     }
   }, [step, phase]);
 
-  const planePos = step >= 0 ? ROUTE_SVG[step] : ROUTE_SVG[0];
-  const prevPos  = step > 0  ? ROUTE_SVG[step - 1] : ROUTE_SVG[0];
+  const planePos = step >= 0 ? ROUTE_SVG[step] : JC_SVG;
+  const prevPos  = step > 0  ? ROUTE_SVG[step - 1] : JC_SVG;
 
   // While flying: face direction of travel (current - prev).
   // While landed: pre-rotate toward next destination so takeoff is smooth.
@@ -342,8 +349,10 @@ export default function Projects() {
   const ttLeft = tooltip ? Math.max(8, Math.min(tooltip.x - TOOLTIP_W / 2, winW - TOOLTIP_W - 8)) : 0;
   const ttTop  = tooltip ? tooltip.y + 18 : 0;
 
-  // Trail points: all visited positions
-  const trailPoints = visitedIdxs.map(i => PROJECT_SVG[i]);
+  // Visited trail: JC → each landed stop in order
+  const trailPoints = visitedIdxs.length > 0
+    ? [JC_SVG, ...visitedIdxs.map(i => PROJECT_SVG[i])]
+    : [];
   const trailStr = trailPoints.map(([x, y]) => `${x},${y}`).join(" ");
 
   return (
@@ -440,18 +449,42 @@ export default function Projects() {
                   </Marker>
                 ))}
 
-                {/* Dotted flight trail */}
+                {/* Ghost full-route path — always visible */}
+                <polyline
+                  points={FULL_PATH_STR}
+                  fill="none"
+                  stroke="var(--text-3)"
+                  strokeWidth={1}
+                  strokeDasharray="4,5"
+                  opacity={0.30}
+                  style={{ pointerEvents: "none" }}
+                />
+
+                {/* Visited trail overlay — brighter */}
                 {trailPoints.length >= 2 && (
                   <polyline
                     points={trailStr}
                     fill="none"
                     stroke="var(--accent)"
-                    strokeWidth={1}
+                    strokeWidth={1.5}
                     strokeDasharray="3,4"
-                    opacity={0.35}
+                    opacity={0.70}
                     style={{ pointerEvents: "none" }}
                   />
                 )}
+
+                {/* Jersey City home-base marker */}
+                <Marker coordinates={JC_COORDS}>
+                  <circle r={6} fill="var(--accent)" opacity={0.15} />
+                  <circle r={3.5} fill="var(--accent)" stroke="#FFFFFF" strokeWidth={1.5} />
+                  <text
+                    textAnchor="middle"
+                    y={-10}
+                    style={{ fontSize: 7, fill: "var(--accent)", fontWeight: 700, fontFamily: "var(--font-heading)", letterSpacing: "0.04em" }}
+                  >
+                    HOME
+                  </text>
+                </Marker>
 
                 {/* Project pins */}
                 {PROJECTS.map((project, idx) => {
