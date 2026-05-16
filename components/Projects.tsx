@@ -507,9 +507,9 @@ export default function Projects() {
                     zIndex: 15,
                   }}
                 >
-                  {/* Image nose points up → offset rotation by +90° so 0° = facing right */}
+                  {/* Nose points up in source → +90° offset aligns with direction of travel */}
                   <img
-                    src="/airplane.jpg"
+                    src="/airplane.png"
                     alt=""
                     style={{
                       width: phase === "landed" ? 28 : 58,
@@ -517,8 +517,7 @@ export default function Projects() {
                       display: "block",
                       transform: `rotate(${planeAngle + 90}deg)`,
                       transition: "width 0.55s cubic-bezier(0.34,1.56,0.64,1), transform 0.35s ease",
-                      mixBlendMode: "multiply",
-                      filter: "drop-shadow(0 2px 6px rgba(0,0,0,0.22))",
+                      filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.28))",
                     }}
                   />
                 </div>
