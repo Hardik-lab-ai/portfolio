@@ -103,7 +103,7 @@ export default function Skills() {
                       fontSize: 12, fontWeight: 500,
                       color: cat.accent ? "var(--accent)" : "var(--text-2)",
                       background: cat.accent ? "var(--accent-light)" : "var(--chip-bg)",
-                      border: `1px solid ${cat.accent ? "rgba(217,107,67,0.16)" : "var(--chip-border)"}`,
+                      border: `1px solid ${cat.accent ? "rgba(0,85,255,0.16)" : "var(--chip-border)"}`,
                       letterSpacing: "0.01em",
                     }}
                   >
@@ -145,7 +145,7 @@ export default function Skills() {
                 onMouseEnter={(e) => {
                   const el = e.currentTarget as HTMLDivElement;
                   el.style.borderColor = "var(--accent)";
-                  el.style.boxShadow = "0 2px 12px rgba(217,107,67,0.12)";
+                  el.style.boxShadow = "0 2px 12px rgba(0,85,255,0.12)";
                 }}
                 onMouseLeave={(e) => {
                   const el = e.currentTarget as HTMLDivElement;

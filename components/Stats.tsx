@@ -84,7 +84,7 @@ export default function Stats() {
                 textAlign: "center",
                 transition: "background 0.22s ease",
               }}
-              onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = "rgba(217,107,67,0.03)"; }}
+              onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = "rgba(0,85,255,0.03)"; }}
               onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = "transparent"; }}
             >
               <div style={{

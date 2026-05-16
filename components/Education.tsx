@@ -110,7 +110,7 @@ function EduCard({ edu, index }: { edu: Edu; index: number }) {
           <div style={{
             textAlign: "center",
             background: edu.accent ? "var(--accent-light)" : "var(--chip-bg)",
-            border: `1px solid ${edu.accent ? "rgba(217,107,67,0.18)" : "var(--chip-border)"}`,
+            border: `1px solid ${edu.accent ? "rgba(0,85,255,0.18)" : "var(--chip-border)"}`,
             borderRadius: 8, padding: "5px 9px", flexShrink: 0,
           }}>
             <div style={{ color: "var(--text-3)", fontSize: 7.5, fontWeight: 700, letterSpacing: "0.10em" }}>GPA</div>
@@ -162,7 +162,7 @@ function EduCard({ edu, index }: { edu: Edu; index: number }) {
         <div style={{
           width: 12, height: 12, borderRadius: "50%",
           background: edu.accent ? "var(--accent)" : "var(--border-strong)",
-          boxShadow: edu.accent ? "0 0 0 4px rgba(217,107,67,0.14)" : "0 0 0 4px var(--border)",
+          boxShadow: edu.accent ? "0 0 0 4px rgba(0,85,255,0.14)" : "0 0 0 4px var(--border)",
           zIndex: 2,
         }} />
       </div>
