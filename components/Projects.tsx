@@ -380,33 +380,6 @@ export default function Projects() {
                   );
                 })}
 
-                {/* Pulsing dots travelling from JC to each project pin */}
-                {PROJECTS.map((project, idx) => {
-                  const [x1, y1] = JC_SVG;
-                  const [x2, y2] = PROJECT_SVG[idx];
-                  const dist = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
-                  const dur  = `${(dist / 100).toFixed(2)}s`;
-                  const delay = `${(idx * 0.38).toFixed(2)}s`;
-                  const path = `M ${x1},${y1} L ${x2},${y2}`;
-                  const color = CAT_COLOR[project.category];
-                  return (
-                    <g key={project.name + "-pulse"} style={{ pointerEvents: "none" }}>
-                      {/* Halo */}
-                      <circle r={0} fill={color} opacity={0}>
-                        <animateMotion dur={dur} repeatCount="indefinite" begin={delay} path={path} />
-                        <animate attributeName="r"       values="4;5;4"         dur={dur} repeatCount="indefinite" begin={delay} />
-                        <animate attributeName="opacity" values="0;0.25;0.25;0" keyTimes="0;0.08;0.82;1" dur={dur} repeatCount="indefinite" begin={delay} />
-                      </circle>
-                      {/* Core */}
-                      <circle r={0} fill={color} opacity={0}>
-                        <animateMotion dur={dur} repeatCount="indefinite" begin={delay} path={path} />
-                        <animate attributeName="r"       values="2;2.5;2"       dur={dur} repeatCount="indefinite" begin={delay} />
-                        <animate attributeName="opacity" values="0;1;1;0"       keyTimes="0;0.06;0.84;1" dur={dur} repeatCount="indefinite" begin={delay} />
-                      </circle>
-                    </g>
-                  );
-                })}
-
                 {/* Jersey City home-base marker */}
                 <Marker coordinates={JC_COORDS}>
                   <circle r={6} fill="var(--accent)" opacity={0.15} />
