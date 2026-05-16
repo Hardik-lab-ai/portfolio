@@ -329,17 +329,6 @@ export default function Projects() {
     }
   }, [step, phase]);
 
-  const planePos = step >= 0 ? ROUTE_SVG[step] : JC_SVG;
-  const prevPos  = step > 0  ? ROUTE_SVG[step - 1] : JC_SVG;
-
-  // While flying: face direction of travel (current - prev).
-  // While landed: pre-rotate toward next destination so takeoff is smooth.
-  const nextStep = step < FLIGHT_ROUTE.length - 1 ? step + 1 : 0;
-  const angleFrom = phase === "landed" ? planePos : prevPos;
-  const angleTo   = phase === "landed" ? ROUTE_SVG[nextStep] : planePos;
-  const dx = angleTo[0] - angleFrom[0];
-  const dy = angleTo[1] - angleFrom[1];
-  const planeAngle = Math.atan2(dy, dx) * (180 / Math.PI);
 
   // Current landed project
   const landedProject = phase === "landed" ? PROJECTS[FLIGHT_ROUTE[step]] : null;
@@ -537,36 +526,6 @@ export default function Projects() {
 
               </ComposableMap>
 
-              {/* Airplane image — absolutely positioned over the map */}
-              {step >= 0 && (
-                <div
-                  style={{
-                    position: "absolute",
-                    left: `${(planePos[0] / 800) * 100}%`,
-                    top: `${(planePos[1] / 500) * 100}%`,
-                    transform: "translate(-50%, -50%)",
-                    transition: phase === "flying"
-                      ? "left 1.6s cubic-bezier(0.45,0,0.55,1), top 1.6s cubic-bezier(0.45,0,0.55,1)"
-                      : "none",
-                    pointerEvents: "none",
-                    zIndex: 15,
-                  }}
-                >
-                  {/* Nose points up in source → +90° offset aligns with direction of travel */}
-                  <img
-                    src="/airplane.png"
-                    alt=""
-                    style={{
-                      width: phase === "landed" ? 28 : 58,
-                      height: "auto",
-                      display: "block",
-                      transform: `rotate(${planeAngle + 90}deg)`,
-                      transition: "width 0.55s cubic-bezier(0.34,1.56,0.64,1), transform 0.35s ease",
-                      filter: "drop-shadow(0 2px 8px rgba(0,0,0,0.28))",
-                    }}
-                  />
-                </div>
-              )}
 
               {/* Landing card — positioned absolutely over the map */}
               <AnimatePresence>
