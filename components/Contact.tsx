@@ -52,13 +52,13 @@ export default function Contact() {
               transition: "background 0.2s ease",
               gap: 16,
             }}
-            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = "rgba(0,206,209,0.04)"; }}
+            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = "rgba(0,139,139,0.04)"; }}
             onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = "transparent"; }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 16, minWidth: 0 }}>
               <div style={{
                 width: 36, height: 36, borderRadius: 10,
-                background: "var(--accent-light)", border: "1px solid rgba(0,206,209,0.15)",
+                background: "var(--accent-light)", border: "1px solid rgba(0,139,139,0.15)",
                 display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
               }}>
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -89,13 +89,13 @@ export default function Contact() {
               transition: "background 0.2s ease",
               gap: 16,
             }}
-            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = "rgba(0,206,209,0.04)"; }}
+            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = "rgba(0,139,139,0.04)"; }}
             onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = "transparent"; }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
               <div style={{
                 width: 36, height: 36, borderRadius: 10,
-                background: "var(--accent-light)", border: "1px solid rgba(0,206,209,0.15)",
+                background: "var(--accent-light)", border: "1px solid rgba(0,139,139,0.15)",
                 display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
               }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--accent)">
