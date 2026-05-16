@@ -290,7 +290,7 @@ export default function Projects() {
             Projects Across the Map
           </h2>
           <p style={{ color: "var(--text-3)", fontSize: 15, lineHeight: 1.7, maxWidth: 560 }}>
-            From California to the Caribbean — solar canopies, rooftop arrays, landfill conversions, and microgrids delivered.
+            From New York to California to the Caribbean — solar canopies, rooftop arrays, landfill conversions, and microgrids delivered.
           </p>
         </motion.div>
 
