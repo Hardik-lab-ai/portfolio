@@ -399,17 +399,6 @@ export default function Projects() {
                         filter: isActive ? `drop-shadow(0 0 3px ${color})` : "none",
                       }}
                     />
-                    {/* Site count */}
-                    {project.sites && (
-                      <text
-                        y={isActive ? -13 : -9}
-                        textAnchor="middle"
-                        fill={color}
-                        style={{ fontSize: 6, fontWeight: 700, letterSpacing: "0.10em", pointerEvents: "none" }}
-                      >
-                        {project.sites} SITES
-                      </text>
-                    )}
                   </Marker>
                 );
               })}
