@@ -42,7 +42,7 @@ export default function RootLayout({
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <head>
         {/* Prevent flash of wrong theme */}
-        <script dangerouslySetInnerHTML={{ __html: `(function(){var t=localStorage.getItem('theme')||'light';document.documentElement.setAttribute('data-theme',t);})();` }} />
+        <script dangerouslySetInnerHTML={{ __html: `document.documentElement.setAttribute('data-theme','light');` }} />
       </head>
       <body
         className={`${spaceGrotesk.variable} ${inter.variable} antialiased`}

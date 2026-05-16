@@ -3,37 +3,37 @@
 
 /* ===================== THEME VARIABLES ===================== */
 :root {
-  /* ---- Jet Black + Salmon + Solar Blue + Off-white ---- */
-  --bg-page:          #F5F6F8;          /* off-white */
-  --bg-alt:           #ECEEF1;          /* slightly deeper off-white */
+  /* ── Warm day palette — off-white + deep navy + amber ── */
+  --bg-page:          #F8F6F1;          /* warm cream off-white */
+  --bg-alt:           #F0EDE6;          /* slightly deeper warm cream */
   --bg-card:          #FFFFFF;
-  --text-1:           #080808;          /* jet black */
-  --text-2:           #1A1A1A;
-  --text-3:           #6E6E6E;
-  --text-4:           #000000;
+  --text-1:           #1A1714;          /* dark warm brown — not pure black */
+  --text-2:           #3D3933;          /* dark warm gray */
+  --text-3:           #706B65;          /* medium warm gray */
+  --text-4:           #1A1714;
   --accent:           #2B55C4;          /* solar panel blue */
   --accent-hover:     #1F44AD;
-  --accent-light:     rgba(43,85,196,0.10);
-  --accent-2:         #C96B52;          /* salmon — darkened */
-  --accent-2-light:   rgba(201,107,82,0.10);
-  --border:           #DDE0E4;
-  --border-strong:    #C4C8CD;
-  --shadow-sm:        0 1px 3px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.06);
-  --shadow-md:        0 4px 16px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.06);
-  --shadow-lg:        0 16px 48px rgba(0,0,0,0.14), 0 4px 14px rgba(0,0,0,0.08);
-  --nav-bg:           rgba(245,246,248,0.97);
-  --nav-border:       #DDE0E4;
-  --hero-panel:       #050505;          /* black solar panel background */
-  --hero-card-bg:     rgba(255,255,255,0.08);
-  --hero-card-border: rgba(255,255,255,0.15);
-  --hero-muted:       rgba(255,255,255,0.60);
-  --footer-bg:        #000000;          /* jet black footer */
-  --footer-muted:     rgba(255,255,255,0.42);
-  --footer-border:    rgba(255,255,255,0.10);
-  --scrollbar-bg:     #DDE0E4;
-  --scrollbar-thumb:  #C4C8CD;
-  --chip-bg:          #ECEEF1;
-  --chip-border:      #DDE0E4;
+  --accent-light:     rgba(43,85,196,0.09);
+  --accent-2:         #B85C38;          /* terracotta — warm construction */
+  --accent-2-light:   rgba(184,92,56,0.09);
+  --border:           #E4E0D8;          /* warm tan border */
+  --border-strong:    #CCC7BC;
+  --shadow-sm:        0 1px 3px rgba(26,23,20,0.07), 0 1px 2px rgba(26,23,20,0.04);
+  --shadow-md:        0 4px 18px rgba(26,23,20,0.09), 0 2px 6px rgba(26,23,20,0.05);
+  --shadow-lg:        0 14px 40px rgba(26,23,20,0.13), 0 4px 14px rgba(26,23,20,0.07);
+  --nav-bg:           rgba(248,246,241,0.97);
+  --nav-border:       #E4E0D8;
+  --hero-panel:       #0D1F38;          /* deep navy — structural steel */
+  --hero-card-bg:     rgba(255,255,255,0.07);
+  --hero-card-border: rgba(255,255,255,0.13);
+  --hero-muted:       rgba(255,255,255,0.56);
+  --footer-bg:        #0D1F38;          /* deep navy footer */
+  --footer-muted:     rgba(255,255,255,0.38);
+  --footer-border:    rgba(255,255,255,0.09);
+  --scrollbar-bg:     #E4E0D8;
+  --scrollbar-thumb:  #CCC7BC;
+  --chip-bg:          #F0EDE6;
+  --chip-border:      #E4E0D8;
 }
 
 [data-theme="dark"] {
@@ -149,6 +149,11 @@
 @keyframes blobFloat3 {
   0%, 100% { transform: translate(0, 0); }
   50%  { transform: translate(-25px, -35px); }
+}
+@keyframes landPulse {
+  0%   { r: 4;  opacity: 0.5; }
+  60%  { r: 18; opacity: 0.15; }
+  100% { r: 24; opacity: 0; }
 }
 
 /* ===================== BASE ===================== */
