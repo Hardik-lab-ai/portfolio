@@ -268,14 +268,6 @@ export default function Projects() {
           }}>
             Projects
           </h2>
-          <p style={{ color: "var(--text-3)", fontSize: 14, maxWidth: 560, lineHeight: 1.7 }}>
-            Solar EPC, BESS, and microgrid projects managed at{" "}
-            <a href="https://www.coredevusa.com" target="_blank" rel="noopener noreferrer"
-              style={{ color: "var(--accent)", textDecoration: "none", fontWeight: 600 }}>
-              Core Development Group (Coredev USA)
-            </a>
-            . Hover any pin to explore project details.
-          </p>
         </div>
 
         {/* Full-width map */}
