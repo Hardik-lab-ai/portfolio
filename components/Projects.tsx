@@ -20,10 +20,10 @@ interface Project {
 }
 
 const CAT_COLOR: Record<Category, string> = {
-  canopy:   "#2B55C4",
-  rooftop:  "#C96B52",
-  landfill: "#059669",
-  bess:     "#7c3aed",
+  canopy:   "#F59E0B",   // amber  — solar canopy
+  rooftop:  "#EF4444",   // red    — rooftop
+  landfill: "#22C55E",   // green  — landfill
+  bess:     "#A855F7",   // purple — BESS / microgrid
 };
 
 const CAT_LABEL: Record<Category, string> = {
