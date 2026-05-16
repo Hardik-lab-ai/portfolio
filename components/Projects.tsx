@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useInView } from "framer-motion";
 
 const WORLD_GEO = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json";
 const US_GEO    = "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json";
@@ -255,8 +255,10 @@ export default function Projects() {
   const [hoveredIdx,  setHoveredIdx]  = useState<number | null>(null);
   const [tooltip,     setTooltip]     = useState<{project: Project; x: number; y: number} | null>(null);
   const [winW,        setWinW]        = useState(1280);
-  const sectionRef = useRef<HTMLElement>(null);
-  const stepRef    = useRef(step);
+  const sectionRef  = useRef<HTMLElement>(null);
+  const headerRef   = useRef(null);
+  const headerInView = useInView(headerRef, { once: true, margin: "-50px" });
+  const stepRef     = useRef(step);
   const phaseRef   = useRef(phase);
   stepRef.current  = step;
   phaseRef.current = phase;
@@ -345,7 +347,13 @@ export default function Projects() {
       <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 32px" }}>
 
         {/* Header */}
-        <div className="reveal" style={{ marginBottom: 52 }}>
+        <motion.div
+          ref={headerRef}
+          initial={{ opacity: 0, y: 18 }}
+          animate={headerInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.5 }}
+          style={{ marginBottom: 52 }}
+        >
           <span className="section-label" style={{ marginBottom: 12 }}>Featured Projects</span>
           <h2 style={{
             fontFamily: "var(--font-heading)", fontSize: "clamp(2rem, 4vw, 2.8rem)",
@@ -357,7 +365,7 @@ export default function Projects() {
           <p style={{ color: "var(--text-3)", fontSize: 15, lineHeight: 1.7, maxWidth: 560 }}>
             From California to the Caribbean — solar canopies, rooftop arrays, landfill conversions, and microgrids delivered across 14 engagements.
           </p>
-        </div>
+        </motion.div>
 
         {/* Map container */}
         <div style={{
