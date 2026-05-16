@@ -325,9 +325,13 @@ export default function Projects() {
   const planePos = step >= 0 ? ROUTE_SVG[step] : ROUTE_SVG[0];
   const prevPos  = step > 0  ? ROUTE_SVG[step - 1] : ROUTE_SVG[0];
 
-  // Compute plane rotation angle
-  const dx = planePos[0] - prevPos[0];
-  const dy = planePos[1] - prevPos[1];
+  // While flying: face direction of travel (current - prev).
+  // While landed: pre-rotate toward next destination so takeoff is smooth.
+  const nextStep = step < FLIGHT_ROUTE.length - 1 ? step + 1 : 0;
+  const angleFrom = phase === "landed" ? planePos : prevPos;
+  const angleTo   = phase === "landed" ? ROUTE_SVG[nextStep] : planePos;
+  const dx = angleTo[0] - angleFrom[0];
+  const dy = angleTo[1] - angleFrom[1];
   const planeAngle = Math.atan2(dy, dx) * (180 / Math.PI);
 
   // Current landed project
