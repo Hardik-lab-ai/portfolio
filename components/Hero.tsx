@@ -178,9 +178,9 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* RIGHT — stats panel (now light) */}
+      {/* RIGHT — stats panel (stays light) */}
       <div ref={rightRef} style={{
-        background: "var(--bg-alt)",
+        background: "#F1F3F6",
         display: "flex", flexDirection: "column", justifyContent: "center",
         padding: "60px 10% 80px",
         position: "relative", overflow: "hidden",
@@ -202,7 +202,7 @@ export default function Hero() {
         }} />
 
         <div style={{ position: "relative" }}>
-          <div style={{ color: "var(--text-3)", fontSize: 9.5, fontWeight: 700, letterSpacing: "0.22em", marginBottom: 32 }}>
+          <div style={{ color: "#8A9AB0", fontSize: 9.5, fontWeight: 700, letterSpacing: "0.22em", marginBottom: 32 }}>
             BY THE NUMBERS
           </div>
 
@@ -216,8 +216,8 @@ export default function Hero() {
                   key={stat.label}
                   style={{
                     padding: "20px 0",
-                    borderBottom: isLastRow ? "none" : "1px solid var(--border)",
-                    borderRight: !isRightCol ? "1px solid var(--border)" : "none",
+                    borderBottom: isLastRow ? "none" : "1px solid #E2E8F0",
+                    borderRight: !isRightCol ? "1px solid #E2E8F0" : "none",
                     paddingRight: !isRightCol ? 28 : 0,
                     paddingLeft: isRightCol ? 28 : 0,
                     animation: `fadeUp 0.6s ease-out ${0.15 + i * 0.07}s forwards`,
@@ -228,13 +228,13 @@ export default function Hero() {
                     fontFamily: "var(--font-heading)",
                     fontSize: "clamp(1.35rem, 2vw, 1.65rem)",
                     fontWeight: 700,
-                    color: "var(--text-1)",
+                    color: "#2C3E50",
                     lineHeight: 1, marginBottom: 5,
                     letterSpacing: "-0.01em",
                   }}>
                     {displayStat(stat, counts[i])}
                   </div>
-                  <div style={{ color: "var(--text-3)", fontSize: 10.5, lineHeight: 1.4, fontWeight: 500 }}>
+                  <div style={{ color: "#8A9AB0", fontSize: 10.5, lineHeight: 1.4, fontWeight: 500 }}>
                     {stat.label}
                   </div>
                 </div>
@@ -243,8 +243,8 @@ export default function Hero() {
           </div>
 
           {/* Certifications */}
-          <div style={{ marginTop: 28, paddingTop: 20, borderTop: "1px solid var(--border)" }}>
-            <div style={{ color: "var(--text-3)", fontSize: 9, fontWeight: 700, letterSpacing: "0.20em", marginBottom: 12 }}>
+          <div style={{ marginTop: 28, paddingTop: 20, borderTop: "1px solid #E2E8F0" }}>
+            <div style={{ color: "#8A9AB0", fontSize: 9, fontWeight: 700, letterSpacing: "0.20em", marginBottom: 12 }}>
               CERTIFICATIONS
             </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
@@ -252,9 +252,9 @@ export default function Hero() {
                 <span
                   key={cert}
                   style={{
-                    background: "var(--chip-bg)",
-                    border: "1px solid var(--chip-border)",
-                    color: "var(--text-2)",
+                    background: "#F1F3F6",
+                    border: "1px solid #E2E8F0",
+                    color: "#4A5C6E",
                     fontSize: 10, fontWeight: 600,
                     padding: "4px 10px", borderRadius: 99,
                     letterSpacing: "0.04em",
@@ -263,15 +263,15 @@ export default function Hero() {
                   }}
                   onMouseEnter={e => {
                     const el = e.currentTarget as HTMLSpanElement;
-                    el.style.background = "var(--accent-light)";
-                    el.style.color = "var(--accent)";
-                    el.style.borderColor = "var(--accent)";
+                    el.style.background = "rgba(0,139,139,0.12)";
+                    el.style.color = "#008B8B";
+                    el.style.borderColor = "#008B8B";
                   }}
                   onMouseLeave={e => {
                     const el = e.currentTarget as HTMLSpanElement;
-                    el.style.background = "var(--chip-bg)";
-                    el.style.color = "var(--text-2)";
-                    el.style.borderColor = "var(--chip-border)";
+                    el.style.background = "#F1F3F6";
+                    el.style.color = "#4A5C6E";
+                    el.style.borderColor = "#E2E8F0";
                   }}
                 >
                   {cert}
